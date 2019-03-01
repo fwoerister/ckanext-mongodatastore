@@ -1,0 +1,8 @@
+{% ckan_extends %}
+
+{% block search %}
+{{ super() }}
+
+{% snippet 'home/snippets/pid_resolve_form.html' %}
+
+{% endblock %}
