@@ -88,8 +88,8 @@ class VersionedDataStoreController:
                 if 'info' in field and 'type_override' in field['info']:
                     if field['info']['type_override'] in type_conversion_dict:
                         field_type[field['id']] = type_conversion_dict[field['info']['type_override']]
-                    else:
-                        field_type[field['id']] = type_conversion_dict[field['type']]
+                else:
+                    field_type[field['id']] = type_conversion_dict[field['type']]
 
             for record in records:
                 for field in record.keys():
@@ -129,8 +129,6 @@ class VersionedDataStoreController:
 
             self.client.admin.command('shardCollection', 'CKAN_Datastore.{0}'.format(resource_id),
                                       key={primary_key: 'hashed'})
-            # self.client.admin.command('shardCollection', 'CKAN_Datastore.{0}_meta'.format(resource_id), key={'_id': 'hashed'})
-            # self.client.admin.command('shardCollection', 'CKAN_Datastore.{0}_fields'.format(resource_id), key={'_id': 'hashed'})
 
             self.datastore.get_collection('{0}_meta'.format(resource_id)).insert_one(
                 {'record_id': primary_key, 'active': True})
@@ -138,11 +136,7 @@ class VersionedDataStoreController:
             col = self.datastore.get_collection(resource_id)
 
             col.create_index(
-                [('_valid_to', pymongo.ASCENDING)],  # , ('_created', pymongo.DESCENDING), ('_id', pymongo.ASCENDING)],
-                name='_valid_to_create_index')
-
-            col.create_index(
-                [('_created', pymongo.ASCENDING)],  # , ('_valid_to', pymongo.DESCENDING), ('_id', pymongo.ASCENDING)],
+                [('_created', pymongo.ASCENDING), ('_valid_to', pymongo.DESCENDING), ('_id', pymongo.ASCENDING)],
                 name='_created_valid_to_index')
 
             col.create_index([('_latest', pymongo.DESCENDING), (primary_key, pymongo.ASCENDING)],
@@ -150,8 +144,6 @@ class VersionedDataStoreController:
 
             col.create_index([(primary_key, pymongo.ASCENDING)],
                              name='_id_index')
-
-            # col.create_index([('$**', 'text'), ('_id', pymongo.ASCENDING)])
 
         def delete_resource(self, resource_id, filters={}):
             col = self.client.get_database(CKAN_DATASTORE).get_collection(resource_id)
