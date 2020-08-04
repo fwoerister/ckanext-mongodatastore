@@ -1,9 +1,17 @@
+import logging
+
 import evaluation.util.ckan as ckan
 import evaluation.util.env as env
 import evaluation.util.mongodb as mongodb
 
 # DESCRIPTION
 # Insert new records to an existing datastore resource.
+
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+
+logging.info("Start execution of 'tc2_1'")
 
 # PRE-REQUISIT
 env.verify_containers_are_running()
@@ -15,6 +23,8 @@ resource_id = ckan.verify_package_contains_resource('rr-experiment',
                                                     {'name': 'RR_processed.csv', 'datastore_active': True})
 
 mongodb.remove_datastore_entries_by_id(resource_id, 1276)
+
+logging.info("pre-requisists are fullfilled")
 
 # STEPS
 new_record = {'id': 1276, 'Country': 1, 'Year': 2010, 'Debt': '101136.25205', 'RGDP': 'NA', 'GDP': 'NA',
@@ -29,3 +39,5 @@ ckan.client.action.datastore_upsert(resource_id=resource_id, force=True, records
 # EXPECTED RESULTS
 mongodb.verify_new_document_is_in_mongo_collection(resource_id, new_record)
 ckan.verify_new_record_is_in_datastore(resource_id, new_record)
+
+logging.info("'tc2_1' successfully executed!")
