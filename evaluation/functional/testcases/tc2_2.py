@@ -27,11 +27,11 @@ logging.info("pre-requisists are fullfilled")
 
 # STEPS
 #  *) update existing record
-new_record = {'id': 1, 'Country': 1, 'Year': 2000, 'Debt': 'NA', 'RGDP': 'NA', 'GDP': 'NA',
-              'dRGDP': 'NA', 'GDPI': 'NA', 'GDP1': 'NA', 'GDP2': 'NA', 'RGDP1': 'NA',
-              'RGDP2': 'NA', 'GDPI1': 'NA', 'GDPI2': 'NA', 'Infl': 'NA', 'Debt1': 'NA', 'Debt2': 'NA',
-              'Debtalt': 'NA', 'GDP2alt': 'NA', 'GDPalt': 'NA', 'RGDP2alt': 'NA', 'debtgdp': 'NA',
-              'GDP3': 'NA', 'GNI': 'NA', 'lRGDP': 'NA', 'lRGDP1': 'NA', 'lRGDP2': 'NA'}
+new_record = {'id': 1, 'Country': 'Australia', 'Year': 2000, 'Debt': None, 'RGDP': None, 'GDP': None,
+              'dRGDP': None, 'GDPI': None, 'GDP1': None, 'GDP2': None, 'RGDP1': None,
+              'RGDP2': None, 'GDPI1': None, 'GDPI2': None, 'Infl': None, 'Debt1': None, 'Debt2': None,
+              'Debtalt': None, 'GDP2alt': None, 'GDPalt': None, 'RGDP2alt': None, 'debtgdp': None,
+              'GDP3': None, 'GNI': None, 'lRGDP': None, 'lRGDP1': None, 'lRGDP2': None}
 
 ckan.client.action.datastore_upsert(resource_id=resource_id, force=True, records=[new_record], method='upsert')
 

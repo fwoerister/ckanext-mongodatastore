@@ -27,11 +27,11 @@ mongodb.remove_datastore_entries_by_id(resource_id, 1276)
 logging.info("pre-requisists are fullfilled")
 
 # STEPS
-new_record = {'id': 1276, 'Country': 1, 'Year': 2010, 'Debt': '101136.25205', 'RGDP': 'NA', 'GDP': 'NA',
-              'dRGDP': '0.732249739168633', 'GDPI': '109.15168', 'GDP1': 'NA', 'GDP2': '1201390', 'RGDP1': 'NA',
-              'RGDP2': '1100661', 'GDPI1': 'NA', 'GDPI2': 'NA', 'Infl': '1.629', 'Debt1': 'NA', 'Debt2': 'NA',
-              'Debtalt': 'NA', 'GDP2alt': 'NA', 'GDPalt': 'NA', 'RGDP2alt': 'NA', 'debtgdp': '8.41826984160015',
-              'GDP3': 'NA', 'GNI': 'NA', 'lRGDP': 'NA', 'lRGDP1': 'NA', 'lRGDP2': '1092660'}
+new_record = {'id': 1276, 'Country': 'Australia', 'Year': 2010, 'Debt': 101136.25205, 'RGDP': None, 'GDP': None,
+              'dRGDP': 0.732249739168633, 'GDPI': 109.15168, 'GDP1': None, 'GDP2': 1201390, 'RGDP1': None,
+              'RGDP2': 1100661, 'GDPI1': None, 'GDPI2': None, 'Infl': '1.629', 'Debt1': None, 'Debt2': None,
+              'Debtalt': None, 'GDP2alt': None, 'GDPalt': None, 'RGDP2alt': None, 'debtgdp': 8.41826984160015,
+              'GDP3': None, 'GNI': None, 'lRGDP': None, 'lRGDP1': None, 'lRGDP2': 1092660}
 
 #  *) insert new record
 ckan.client.action.datastore_upsert(resource_id=resource_id, force=True, records=[new_record], method='insert')
