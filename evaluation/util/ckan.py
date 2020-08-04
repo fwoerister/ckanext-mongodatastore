@@ -4,6 +4,8 @@ import logging
 import ckanapi
 from ckanapi import NotFound
 
+from ckanext.mongodatastore.util import calculate_hash
+
 logger = logging.getLogger(__name__)
 
 config = json.load(open('../config.json', 'r'))
@@ -61,3 +63,18 @@ def verify_record_with_id_exists(resource_id, record_id):
 def verify_record_with_id_does_not_exist(resource_id, record_id):
     result = client.action.datastore_search(resource_id=resource_id, filters={'id': record_id})
     assert (len(result['records']) == 0)
+
+
+def verify_resultset_record_count(result, expected_count):
+    assert result['total'] == len(result['records']), \
+        "number of returned records and 'total' field do not match ({} vs {})".format(result['total'],
+                                                                                      len(result['records']))
+
+    assert result['total'] == expected_count, "expected {} records but retrieved {}".format(expected_count,
+                                                                                            result['total'])
+
+
+def verify_resultset_record_hash(result, expected_hash):
+    hash = calculate_hash(result['records'])
+    logger.info(hash)
+    assert hash == expected_hash, "The hash of the returned resultset does not match the expected hash value"

@@ -49,7 +49,7 @@ def transform_filter(filters, schema):
         elif type(filters[key]) is dict:
             new_filter[key] = filters[key]
         else:
-            if schema_dict[key]['type'] in ['number', 'numeric'] and type(filters[key]) == str:
+            if schema_dict[key]['type'] in ['number', 'numeric'] and type(filters[key]) in (str, unicode):
                 try:
                     if filters[key].startswith('<='):
                         value = float(filters[key][2:])

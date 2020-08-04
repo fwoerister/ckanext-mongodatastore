@@ -13,7 +13,7 @@ from ckanext.mongodatastore.query_preprocessor import transform_query_to_stateme
 log = logging.getLogger(__name__)
 
 MIN_LIMIT = 1
-MAX_LIMIT = 100
+MAX_LIMIT = 500
 
 
 def raise_exeption(ex):
