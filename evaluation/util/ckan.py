@@ -9,7 +9,7 @@ from ckanext.mongodatastore.util import calculate_hash
 logger = logging.getLogger(__name__)
 
 config = json.load(open('../config.json', 'r'))
-client = ckanapi.RemoteCKAN(config['ckan']['url'], apikey=config['ckan']['apikey'])
+client = ckanapi.RemoteCKAN(config['ckan']['base_url'], apikey=config['ckan']['apikey'])
 
 
 def verify_if_evaluser_exists():
@@ -78,3 +78,8 @@ def verify_resultset_record_hash(result, expected_hash):
     hash = calculate_hash(result['records'])
     logger.info(hash)
     assert hash == expected_hash, "The hash of the returned resultset does not match the expected hash value"
+
+
+def verify_all_resultsets_are_equal(resultsets):
+    results = map(lambda result: calculate_hash(result), resultsets)
+    assert all(result_hash == results[0] for result_hash in results)

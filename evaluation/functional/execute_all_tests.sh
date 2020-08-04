@@ -9,5 +9,6 @@ python testcases/tc2_3.py
 python testcases/tc3_1.py
 python testcases/tc3_2.py
 python testcases/tc3_3.py
+python testcases/tc4_1.py
 
 exit 0
