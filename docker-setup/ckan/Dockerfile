@@ -48,9 +48,9 @@ RUN mkdir -p $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH && \
 RUN ckan-pip install setuptools==36.1
 RUN ckan-pip install -e 'git+https://github.com/ckan/ckan.git@ckan-2.8.2#egg=ckan'
 
-COPY ckan-entrypoint.sh ./ckan-entrypoint.sh
+COPY docker-setup/ckan/ckan-entrypoint.sh ./ckan-entrypoint.sh
 RUN dos2unix ./ckan-entrypoint.sh
-COPY ./cred.json /etc/ckan/cred.json
+COPY docker-setup/ckan/cred.json /etc/ckan/cred.json
 RUN ckan-pip install -U pip && \
     ckan-pip install --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirements.txt && \
     ckan-pip install -e $CKAN_VENV/src/ckan/ && \
@@ -59,7 +59,7 @@ RUN ckan-pip install -U pip && \
     chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
 
 # Setup mongodatastore
-RUN git clone https://github.com/fwoerister/ckanext-mongodatastore.git /usr/lib/ckan/venv/src/ckanext-mongodatastore
+COPY . /usr/lib/ckan/venv/src/ckanext-mongodatastore
 RUN ckan-pip install -r /usr/lib/ckan/venv/src/ckanext-mongodatastore/requirements.txt
 
 RUN cd /usr/lib/ckan/venv/src/ckanext-mongodatastore && \
@@ -67,11 +67,11 @@ RUN cd /usr/lib/ckan/venv/src/ckanext-mongodatastore && \
     ckan-python setup.py develop
 
 # Setup reclinecitationview
-RUN git clone https://github.com/fwoerister/ckanext-reclinecitationview.git /usr/lib/ckan7venv/src/ckanext-reclinecitationview
+#RUN git clone https://github.com/fwoerister/ckanext-reclinecitationview.git /usr/lib/ckan/venv/src/ckanext-reclinecitationview
 
-RUN cd /usr/lib/ckan7venv/src/ckanext-reclinecitationview && \
-    ckan-python setup.py install && \
-    ckan-python setup.py develop
+#RUN cd /usr/lib/ckan/venv/src/ckanext-reclinecitationview && \
+#    ckan-python setup.py install && \
+#    ckan-python setup.py develop
 
 USER ckan
 EXPOSE 5000

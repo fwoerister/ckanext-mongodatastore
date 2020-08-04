@@ -20,6 +20,7 @@ log = logging.getLogger(__name__)
 type_conversion_dict = {
     'string': str,
     'str': str,
+    'text': str,
     'char': str,
     'integer': int,
     'int': int,
@@ -190,7 +191,7 @@ class VersionedDataStoreController:
                 for record in records:
                     record['_hash'] = calculate_hash(record)
                     col.update_one({record_id_key: record[record_id_key], '_latest': True},
-                                   {'$currentDate': '_created',
+                                   {'$currentDate': {'_created': True},
                                     '$set': record}, upsert=True)
 
         def upsert(self, resource_id, records, dry_run=False):
