@@ -4,7 +4,7 @@ import requests
 
 logger = logging.getLogger(__name__)
 
-config = json.load(open('../../config.json', 'r'))['solr']
+config = json.load(open('../config.json', 'r'))['solr']
 
 
 def index_exists(resource_name):

@@ -6,7 +6,7 @@ from ckanapi import NotFound
 
 logger = logging.getLogger(__name__)
 
-config = json.load(open('../../config.json', 'r'))
+config = json.load(open('../config.json', 'r'))
 client = ckanapi.RemoteCKAN(config['ckan']['url'], apikey=config['ckan']['apikey'])
 
 
@@ -48,16 +48,16 @@ def verify_package_contains_resource(pkg_name, expected_resource):
 
 
 def verify_new_record_is_in_datastore(resource_id, new_record):
-    result = client.action.datastore_search(resource_id=resource_id, filters={'id': str(new_record['id'])})
+    result = client.action.datastore_search(resource_id=resource_id, filters={'id': new_record['id']})
     assert (len(result['records']) == 1)
     assert (result['records'][0] == new_record)
 
 
 def verify_record_with_id_exists(resource_id, record_id):
-    result = client.action.datastore_search(resource_id=resource_id, filters={'id': str(record_id)})
+    result = client.action.datastore_search(resource_id=resource_id, filters={'id': record_id})
     assert (len(result['records']) == 1)
 
 
 def verify_record_with_id_does_not_exist(resource_id, record_id):
-    result = client.action.datastore_search(resource_id=resource_id, filters={'id': str(record_id)})
+    result = client.action.datastore_search(resource_id=resource_id, filters={'id': record_id})
     assert (len(result['records']) == 0)

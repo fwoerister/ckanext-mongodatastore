@@ -1,15 +1,15 @@
 #!/bin/sh -e
 
-echo "NO_START=0\nJETTY_HOST=127.0.0.1\nJETTY_PORT=8983\nJAVA_HOME=$JAVA_HOME" | sudo tee /etc/default/jetty
-sudo cp ckan/ckan/config/solr/schema.xml /etc/solr/conf/schema.xml
-sudo service jetty restart
+pip install -r requirements.txt
+python setup.py install
+python setup.py develop
 
-nosetests --ckan \
-          --nologcapture \
-          --with-pylons=subdir/test.ini \
-          --with-coverage \
-          --cover-package=ckanext.mongodatastore \
-          --cover-inclusive \
-          --cover-erase \
-          --cover-tests \
-          -c test.ini
+cd evaluation
+pip install -r requirements.txt
+
+echo "wait for ckan to start up ..."
+sleep 30
+
+echo "start testing ..."
+cd functional
+./execute_all_tests.sh

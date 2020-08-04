@@ -1,7 +1,7 @@
 import logging
 
-import requests
 import docker
+import requests
 
 logger = logging.getLogger(__name__)
 

@@ -1,4 +1,5 @@
 import logging
+from time import sleep
 
 import evaluation.util.ckan as ckan
 import evaluation.util.env as env
@@ -33,7 +34,10 @@ package = ckan.client.action.package_create(name='rr-experiment', title='Reinhar
 
 resource = ckan.client.action.resource_create(package_id=package['id'],
                                               name='RR_processed.csv',
-                                              upload=open('../dataset/RR_processed.csv', 'r'))
+                                              upload=open('dataset/RR_processed.csv', 'r'))
+
+logging.info("wait 10 seconds for datapusher...")
+sleep(10)
 
 # EXPECTED RESULTS
 # *) package was indexed

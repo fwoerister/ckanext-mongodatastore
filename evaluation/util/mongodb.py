@@ -5,7 +5,7 @@ from pymongo import MongoClient
 
 logger = logging.getLogger(__name__)
 
-config = json.load(open('../../config.json', 'r'))['mongodb']
+config = json.load(open('../config.json', 'r'))['mongodb']
 mongo_client = MongoClient(config['url'])
 db = mongo_client.get_database(config['database'])
 
