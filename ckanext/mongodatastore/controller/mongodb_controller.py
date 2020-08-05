@@ -337,7 +337,9 @@ class VersionedDataStoreController:
                     ]
                 }
 
-            if sort is None:
+            if sort:
+                sort = sort + [('_id', 1)]
+            else:
                 sort = [('_id', 1)]
 
             if include_total:

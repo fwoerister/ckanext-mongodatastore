@@ -7,7 +7,6 @@ import evaluation.util.mongodb as mongodb
 # DESCRIPTION
 # Insert new records to an existing datastore resource.
 
-
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 

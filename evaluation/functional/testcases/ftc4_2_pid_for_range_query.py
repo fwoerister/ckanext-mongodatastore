@@ -6,15 +6,14 @@ import evaluation.util.env as env
 
 # DESCRIPTION
 # In this testcase a query is submitted to the datastore that retrieves all records where a specific
-# field exactly matches the provided parameter. For the resulting dataset a PID is issued.
-from ckanext.mongodatastore.util import calculate_hash
+# field matches a range query. For the resulting dataset a PID is issued.
 
 from evaluation.util import querystore, handle
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
-logging.info("Start execution of 'tc4_1'")
+logging.info("Start execution of 'tc4_2'")
 
 # PRE-REQUISIT
 env.verify_containers_are_running()
@@ -28,7 +27,7 @@ logging.info("pre-requisists are fullfilled")
 
 # STEPS
 results = []
-pid = ckan.client.action.issue_pid(resource_id=resource_id, statement={'Country': 'Austria'})
+pid = ckan.client.action.issue_pid(resource_id=resource_id, statement={'Country': 'Italy'}, sort='Infl asc')
 results.append(ckan.client.action.querystore_resolve(pid=pid))
 
 new_record = {'id': 1278, 'Country': 'Australia', 'Year': 2010, 'Debt': 101136.25205, 'RGDP': None, 'GDP': None,
@@ -51,9 +50,6 @@ results.append(ckan.client.action.querystore_resolve(pid=pid))
 ckan.client.action.datastore_delete(resource_id=resource_id, filters={'Country': 'Japan'}, force=True)
 results.append(ckan.client.action.querystore_resolve(pid=pid))
 
-ckan.client.action.datastore_delete(resource_id=resource_id, force=True)
-results.append(ckan.client.action.querystore_resolve(pid=pid))
-
 logger.info("wait 5 seconds for background job to finish...")
 sleep(5)
 
@@ -62,4 +58,4 @@ ckan.verify_all_resultsets_are_equal(results)
 handle_pid = querystore.verify_handle_was_assigned(pid)
 handle.verify_handle_resolves_to_pid(handle_pid, pid)
 
-logging.info("'tc4_1' successfully executed!")
+logging.info("'tc4_2' successfully executed!")

@@ -4,9 +4,8 @@ import evaluation.util.ckan as ckan
 import evaluation.util.env as env
 
 # DESCRIPTION
-# In this testcase a query is submitted to the datastore that
-# retrieves all records where a specific record field applies
-# to a range of values. For the resulting dataset a PID is issued.
+# In this testcase a query is submitted to the datastore that retrieves all
+# records where a specific record field applies to a fulltext query.
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
