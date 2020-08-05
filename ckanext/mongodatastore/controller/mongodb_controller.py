@@ -16,7 +16,10 @@ from ckanext.mongodatastore.query_preprocessor import transform_query_to_stateme
 from ckanext.mongodatastore.util import normalize_json, DateTimeEncoder, HASH_ALGORITHM, decodeDateTime, \
     calculate_hash
 
+QUEUE_NAME = u'hash_queue'
+
 log = logging.getLogger(__name__)
+
 type_conversion_dict = {
     'string': str,
     'str': str,
@@ -252,7 +255,7 @@ class VersionedDataStoreController:
                                                            None, HASH_ALGORITHM().name,
                                                            projected_schema)
 
-            toolkit.enqueue_job(calculate_resultset_hash_job, [query.id])
+            toolkit.enqueue_job(calculate_resultset_hash_job, [query.id], queue=(QUEUE_NAME))
 
             result['metadata'] = meta_data
             result['query'] = query
