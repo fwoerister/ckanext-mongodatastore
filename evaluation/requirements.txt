@@ -1,9 +1,0 @@
-ckanext
-ckanapi
-formencode
-pylons
-vdm
-docker
-flask_babel
-sqlalchemy
-psycopg2

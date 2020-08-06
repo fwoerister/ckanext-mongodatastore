@@ -44,6 +44,12 @@ def calculate_resultset_hash_job(pid):
     parsed_query = json.loads(q.query, object_hook=decodeDateTime)
 
     log.info("fetch {0}".format(parsed_query['filter']))
+
+    parsed_query['filter'].update({
+        '_valid_to': {'$gt': q.timestamp},
+        '_created': {'$lte': q.timestamp}
+    })
+
     result = c.find(filter=parsed_query['filter'], projection=parsed_query['projection'], sort=parsed_query['sort'])
 
     _hash = calculate_hash(result)
@@ -218,6 +224,7 @@ class VersionedDataStoreController:
                         col.update_one(filters, {'$currentDate': {'_valid_to': True}, '$set': {'_latest': False}})
                         record['_latest'] = True
                         record['_created'] = datetime.now(pytz.UTC)
+                        record['_valid_to'] = datetime.max
                         col.insert_one(record)
 
         def issue_pid(self, resource_id, statement, projection, sort, distinct, q):
@@ -233,10 +240,6 @@ class VersionedDataStoreController:
                 statement = transform_filter(statement, schema)
 
             statement = normalize_json(statement)
-
-            statement.update({'_valid_to': {'$gt': now},
-                              '_created': {'$lte': now}
-                              })
 
             projection = create_projection(fields.find(), projection)
 
@@ -255,7 +258,7 @@ class VersionedDataStoreController:
                                                            None, HASH_ALGORITHM().name,
                                                            projected_schema)
 
-            toolkit.enqueue_job(calculate_resultset_hash_job, [query.id], queue=(QUEUE_NAME))
+            toolkit.enqueue_job(calculate_resultset_hash_job, [query.id], queue=QUEUE_NAME)
 
             result['metadata'] = meta_data
             result['query'] = query
@@ -282,6 +285,10 @@ class VersionedDataStoreController:
                 result['pid'] = pid
 
                 if preview:
+                    parsed_query['filter'].update({
+                        '_valid_to': {'$gt': q.timestamp},
+                        '_created': {'$lte': q.timestamp}
+                    })
                     result['records'] = col.find(filter=parsed_query.get('filter'),
                                                  projection=parsed_query.get('projection'),
                                                  sort=parsed_query.get('sort'),
@@ -296,7 +303,7 @@ class VersionedDataStoreController:
                     'query_hash': q.query_hash,
                     'hash_algorithm': q.hash_algorithm,
                     'result_set_hash': q.result_set_hash,
-                    'timestamp': q.timestamp,
+                    'timestamp': str(q.timestamp),
                     'handle_pid': q.handle_pid
                 }
                 result['query'] = query

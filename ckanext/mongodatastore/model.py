@@ -1,4 +1,4 @@
-from sqlalchemy import Column, BIGINT, TEXT, INT, ForeignKey, UniqueConstraint
+from sqlalchemy import Column, BIGINT, TEXT, INT, ForeignKey, UniqueConstraint, DATETIME, TIMESTAMP
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -14,7 +14,7 @@ class Query(Base):
     id = Column(BIGINT, primary_key=True)
     resource_id = Column(TEXT)
     handle_pid = Column(TEXT)
-    timestamp = Column(TEXT)
+    timestamp = Column(TIMESTAMP)
     query = Column(TEXT)
     query_hash = Column(TEXT)
     result_set_hash = Column(TEXT)
