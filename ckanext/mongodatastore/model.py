@@ -8,9 +8,7 @@ Base = declarative_base()
 class Query(Base):
     def __init__(self):
         pass
-
     __tablename__ = 'QUERY'
-
     id = Column(BIGINT, primary_key=True)
     resource_id = Column(TEXT)
     handle_pid = Column(TEXT)
@@ -20,8 +18,8 @@ class Query(Base):
     result_set_hash = Column(TEXT)
     hash_algorithm = Column(TEXT)
     record_field_hash = Column(TEXT)
-    record_fields = relationship("RecordField", lazy='subquery', cascade='all, delete-orphan')
-    metadata_fields = relationship("MetaDataField", lazy='subquery', cascade='all, delete-orphan')
+    record_fields = relationship("RecordField", lazy='joined', cascade='all, delete-orphan')
+    metadata_fields = relationship("MetaDataField", lazy='joined', cascade='all, delete-orphan')
 
 
 class MetaDataField(Base):

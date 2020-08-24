@@ -115,10 +115,10 @@ services:
 
   gitlab:
     image: 'gitlab/gitlab-ee:latest'
+    container_name: gitlab
     restart: always
     hostname: 'localhost'
     environment:
-      GITLAB_HOME: '~/gitlab'
       GITLAB_ROOT_PASSWORD: 'gitlab_passwd'
       GITLAB_OMNIBUS_CONFIG: |
         external_url 'http://localhost:8081'
@@ -126,10 +126,6 @@ services:
     ports:
       - '8081:8081'
       - '2224:22'
-    volumes:
-      - '$GITLAB_HOME/config:/etc/gitlab'
-      - '$GITLAB_HOME/logs:/var/log/gitlab'
-      - '$GITLAB_HOME/data:/var/opt/gitlab'
 
   mdb-config:
     container_name: mdb-config

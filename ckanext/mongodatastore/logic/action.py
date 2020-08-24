@@ -1,4 +1,3 @@
-import json
 import logging
 
 from ckan import logic
@@ -22,12 +21,11 @@ def issue_query_pid(context, data_dict):
     q = data_dict.get('q', None)
     projection = data_dict.get('projection', default_projection)
     sort = data_dict.get('sort', None)
-    distinct = data_dict.get('distinct', False)
 
     if sort:
         sort = sort.split(',')
 
-    return cntr.issue_pid(resource_id, statement, projection, sort, distinct, q)
+    return cntr.issue_pid(resource_id, statement, projection, sort, q)
 
 
 @logic.side_effect_free
@@ -57,18 +55,3 @@ def querystore_resolve(context, data_dict):
         result['records_preview'] = None
 
     return result
-
-@logic.side_effect_free
-def nv_datastore_search(context, data_dict):
-    cntr = VersionedDataStoreController.get_instance()
-
-    resource_id = data_dict.get('resource_id')
-    filters = data_dict.get('filters', '{}')
-    #sort = data_dict.get('sort')
-
-    offset = int(data_dict.get('offset', '0'))
-    limit = int(data_dict.get('limit', '0'))
-
-    filters = json.loads(filters)
-
-    return cntr.query_nonversioned_store(resource_id, filters, offset, limit)

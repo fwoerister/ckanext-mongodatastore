@@ -1,6 +1,4 @@
 import logging
-from collections import OrderedDict
-from json import JSONDecoder
 
 from ckan.lib.base import abort
 from ckan.logic import get_action
@@ -89,7 +87,6 @@ class MongoDataStoreBackend(DatastoreBackend):
         data_dict['records'] = []
         return data_dict
 
-
     def delete(self, context, data_dict):
         resource_id = data_dict.get(u'resource_id')
         force = data_dict.get(u'force', False)
@@ -103,8 +100,8 @@ class MongoDataStoreBackend(DatastoreBackend):
 
         return data_dict
 
-
     def search(self, context, data_dict):
+        log.debug(u'datastore search is called on mongo datastore with parameter')
         resource_id = data_dict.get(u'resource_id')
         filters = data_dict.get(u'filters', {})
         query = data_dict.get(u'q', None)
@@ -147,6 +144,7 @@ class MongoDataStoreBackend(DatastoreBackend):
         if sort:
             sort = transform_sort(sort.split(','))
 
+        log.info('statement: %s', statement)
         result = self.mongo_cntr.query_current_state(resource_id, statement, projection, sort, offset, limit, distinct,
                                                      include_total, projected_schema)
 
@@ -156,40 +154,32 @@ class MongoDataStoreBackend(DatastoreBackend):
 
         return result
 
-
     def search_sql(self, context, data_dict):
         raise NotImplementedError()
 
-
     def resource_exists(self, id):
-        log.debug(u'resource exists is called on mongo datastore with parameter: {0}'.format(id))
+        log.debug(u'resource exists is called on mongo datastore with parameter: %s', id)
         exists = self.mongo_cntr.resource_exists(id)
         res_metadata = get_action('resource_show')(None, {'id': id})
 
         return exists and res_metadata['datastore_active']
 
-
     def resource_fields(self, resource_id):
         return self.mongo_cntr.resource_fields(resource_id)
 
-
     def resource_info(self, resource_id):
         return self.resource_fields(resource_id)
-
 
     def resource_id_from_alias(self, alias):
         if self.resource_exists(alias):
             return True, alias
         return False, alias
 
-
     def get_all_ids(self):
         return self.mongo_cntr.get_all_ids()
 
-
     def create_function(self, *args, **kwargs):
         raise NotImplementedError()
-
 
     def drop_function(self, *args, **kwargs):
         raise NotImplementedError()

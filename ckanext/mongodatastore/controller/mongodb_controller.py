@@ -157,7 +157,7 @@ class VersionedDataStoreController:
 
         def delete_resource(self, resource_id, filters={}):
             col = self.client.get_database(CKAN_DATASTORE).get_collection(resource_id)
-            filters['_valid_to'] = {'$exists': False}
+            filters.update({'_latest': True})
             col.update_many(filters, {'$currentDate': {'_valid_to': True}, '$set': {'_latest': False}})
 
         def update_schema(self, resource_id, field_definitions, indexes, primary_key):
@@ -227,7 +227,7 @@ class VersionedDataStoreController:
                         record['_valid_to'] = datetime.max
                         col.insert_one(record)
 
-        def issue_pid(self, resource_id, statement, projection, sort, distinct, q):
+        def issue_pid(self, resource_id, statement, projection, sort, q):
             now = datetime.now(pytz.UTC)
 
             col, meta, fields = self.__get_collections(resource_id)
@@ -244,7 +244,7 @@ class VersionedDataStoreController:
             projection = create_projection(fields.find(), projection)
 
             if sort:
-                sort = transform_sort(sort)
+                sort = transform_sort(sort) + [('_id', 1)]
             else:
                 sort = [('_created', 1), ('_id', 1)]
 
@@ -328,7 +328,7 @@ class VersionedDataStoreController:
                 raise QueryNotFoundException('No query with PID {0} found'.format(pid))
 
         def query_current_state(self, resource_id, statement, projection, sort, offset, limit, distinct, include_total,
-                                projected_schema, unversioned=False):
+                                projected_schema):
             col, _, _ = self.__get_collections(resource_id)
             result = dict()
 

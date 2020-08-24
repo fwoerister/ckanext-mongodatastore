@@ -63,7 +63,8 @@ COPY . /usr/lib/ckan/venv/src/ckanext-mongodatastore
 RUN ckan-pip install -r /usr/lib/ckan/venv/src/ckanext-mongodatastore/requirements.txt
 
 RUN cd /usr/lib/ckan/venv/src/ckanext-mongodatastore && \
-    ckan-python setup.py install
+    ckan-python setup.py install && \
+    ckan-python setup.py develop
 
 # Setup reclinecitationview
 #RUN git clone https://github.com/fwoerister/ckanext-reclinecitationview.git /usr/lib/ckan/venv/src/ckanext-reclinecitationview

@@ -5,7 +5,7 @@ from ckanext.mongodatastore.datadump.datadump import dump_dataset
 from flask import Blueprint
 
 from ckanext.mongodatastore.datastore_backend import MongoDataStoreBackend
-from ckanext.mongodatastore.logic.action import issue_query_pid, querystore_resolve, nv_datastore_search
+from ckanext.mongodatastore.logic.action import issue_query_pid, querystore_resolve
 
 
 class MongodatastorePlugin(plugins.SingletonPlugin):
@@ -43,8 +43,7 @@ class MongodatastorePlugin(plugins.SingletonPlugin):
     def get_actions(self):
         actions = {
             'issue_pid': issue_query_pid,
-            'querystore_resolve': querystore_resolve,
-            'nv_datastore_search': nv_datastore_search
+            'querystore_resolve': querystore_resolve
         }
 
         return actions
