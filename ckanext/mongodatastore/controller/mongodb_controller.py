@@ -30,6 +30,7 @@ type_conversion_dict = {
     'float': float,
     'number': float,
     'numeric': float,
+    'bigint': long
 }
 CKAN_DATASTORE = config.get(u'ckan.datastore.database')
 CKAN_SITE_URL = config.get(u'ckan.site_url')
