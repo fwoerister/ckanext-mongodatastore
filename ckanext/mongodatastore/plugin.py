@@ -1,9 +1,9 @@
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 from ckanext.datastore.interfaces import IDatastoreBackend
-from ckanext.mongodatastore.datadump.datadump import dump_dataset
 from flask import Blueprint
 
+from ckanext.mongodatastore.datadump.datadump import dump_dataset
 from ckanext.mongodatastore.datastore_backend import MongoDataStoreBackend
 from ckanext.mongodatastore.logic.action import issue_query_pid, querystore_resolve
 
@@ -14,6 +14,7 @@ class MongodatastorePlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IRoutes, inherit=True)
     plugins.implements(plugins.IActions)
     plugins.implements(plugins.IBlueprint)
+    plugins.implements(plugins.ITemplateHelpers)
 
     def update_config(self, config):
         toolkit.add_public_directory(config, 'theme/public')
@@ -59,3 +60,6 @@ class MongodatastorePlugin(plugins.SingletonPlugin):
             blueprint.add_url_rule(*rule)
 
         return blueprint
+
+    def get_helpers(self):
+        return {'urlencode': urlencode}

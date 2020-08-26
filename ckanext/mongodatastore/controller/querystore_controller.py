@@ -7,6 +7,7 @@ from pyhandle.handleclient import PyHandleClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+from ckanext.mongodatastore.exceptions import QueryNotFoundException
 from ckanext.mongodatastore.model import Query, RecordField, MetaDataField
 from ckanext.mongodatastore.util import calculate_hash
 
@@ -144,6 +145,9 @@ class QueryStoreController:
 
     def retrieve_query(self, pid):
         result = self.session.query(Query).filter(Query.id == pid).first()
+
+        if not result:
+            raise QueryNotFoundException()
 
         meta_data = {}
         for meta_field in self.session.query(MetaDataField).filter(MetaDataField.query_id == result.id):

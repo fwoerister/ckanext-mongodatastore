@@ -228,6 +228,11 @@ class VersionedDataStoreController:
                         record['_latest'] = True
                         record['_valid_to'] = datetime.max
                         required_updates.append(record)
+
+            col.update_many({'id': {'$in': [record[record_id_key] for record in required_updates]},
+                             '_latest': True},
+                            {'$currentDate': {'_valid_to': True},
+                             '$set': {'_latest': False}})
             col.insert_many(required_updates)
             col.update_many({'_created': {'$exists': False}},
                             {'$currentDate': {'_created': True},

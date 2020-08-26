@@ -49,9 +49,9 @@ class MongoDataStoreBackend(DatastoreBackend):
         if 'records' in data_dict:
             data_dict['records'] = None
 
-        log_parameter_not_used_warning(
-            [('force', force), ('resource', resource), ('aliases', aliases),
-             ('triggers', triggers), ('calculate_record_count', calculate_record_count)])
+        # log_parameter_not_used_warning(
+        #     [('force', force), ('resource', resource), ('aliases', aliases),
+        #      ('triggers', triggers), ('calculate_record_count', calculate_record_count)])
 
         if indexes:
             indexes = indexes.split(',')
@@ -72,8 +72,8 @@ class MongoDataStoreBackend(DatastoreBackend):
         calculate_record_count = data_dict.get(u'calculate_record_count', False)
         dry_run = data_dict.get(u'dry_run', False)
 
-        log_parameter_not_used_warning(
-            [('force', force), ('calculate_record_count', calculate_record_count)])
+        # log_parameter_not_used_warning(
+        #     [('force', force), ('calculate_record_count', calculate_record_count)])
 
         operations = {
             'insert': self.mongo_cntr.insert,
@@ -93,15 +93,14 @@ class MongoDataStoreBackend(DatastoreBackend):
         filters = data_dict.get('filters', {})
         calculate_record_count = data_dict.get(u'calculate_record_count', False)
 
-        log_parameter_not_used_warning(
-            [('force', force), ('calculate_record_count', calculate_record_count)])
+        # log_parameter_not_used_warning(
+        #     [('force', force), ('calculate_record_count', calculate_record_count)])
 
         self.mongo_cntr.delete_resource(resource_id, filters)
 
         return data_dict
 
     def search(self, context, data_dict):
-        log.debug(u'datastore search is called on mongo datastore with parameter')
         resource_id = data_dict.get(u'resource_id')
         filters = data_dict.get(u'filters', {})
         query = data_dict.get(u'q', None)
@@ -122,8 +121,8 @@ class MongoDataStoreBackend(DatastoreBackend):
         if limit > MAX_LIMIT:
             limit = MAX_LIMIT
 
-        log_parameter_not_used_warning([(u'plain', plain), (u'language', language),
-                                        (u'total_estimation_threshold', total_estimation_threshold)])
+        # log_parameter_not_used_warning([(u'plain', plain), (u'language', language),
+        #                                 (u'total_estimation_threshold', total_estimation_threshold)])
 
         if records_format in [u'tsv', u'lists']:
             abort(501, u"The current version of MongoDatastore only supports CSV exports!")
@@ -144,7 +143,6 @@ class MongoDataStoreBackend(DatastoreBackend):
         if sort:
             sort = transform_sort(sort.split(','))
 
-        log.info('statement: %s', statement)
         result = self.mongo_cntr.query_current_state(resource_id, statement, projection, sort, offset, limit, distinct,
                                                      include_total, projected_schema)
 
@@ -158,7 +156,6 @@ class MongoDataStoreBackend(DatastoreBackend):
         raise NotImplementedError()
 
     def resource_exists(self, id):
-        log.debug(u'resource exists is called on mongo datastore with parameter: %s', id)
         exists = self.mongo_cntr.resource_exists(id)
         res_metadata = get_action('resource_show')(None, {'id': id})
 
