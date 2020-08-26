@@ -200,9 +200,12 @@ class VersionedDataStoreController:
             if not dry_run:
                 for record in records:
                     record['_hash'] = calculate_hash(record)
-                    col.update_one({record_id_key: record[record_id_key], '_latest': True},
-                                   {'$currentDate': {'_created': True},
-                                    '$set': record}, upsert=True)
+                    record['_valid_to'] = datetime.max
+
+                col.insert_many(records)
+                col.update_many({'_created': {'$exists': False}},
+                                {'$currentDate': {'_created': True},
+                                 '$set': {'_latest': True}})
 
         def upsert(self, resource_id, records, dry_run=False):
             col, meta, fields = self.__get_collections(resource_id)
@@ -217,16 +220,18 @@ class VersionedDataStoreController:
                                                  'value has to be set for every record. '
                                                  'In this collection the id attribute is "{0}"'.format(record_id_key))
 
+            required_updates = []
             for record in records:
                 if not dry_run:
                     record['_hash'] = calculate_hash(record)
                     if self.__update_required(resource_id, record, record_id_key):
-                        filters = {'_latest': True, record_id_key: record[record_id_key]}
-                        col.update_one(filters, {'$currentDate': {'_valid_to': True}, '$set': {'_latest': False}})
                         record['_latest'] = True
-                        record['_created'] = datetime.now(pytz.UTC)
                         record['_valid_to'] = datetime.max
-                        col.insert_one(record)
+                        required_updates.append(record)
+            col.insert_many(required_updates)
+            col.update_many({'_created': {'$exists': False}},
+                            {'$currentDate': {'_created': True},
+                             '$set': {'_latest': True}})
 
         def issue_pid(self, resource_id, statement, projection, sort, q):
             now = datetime.now(pytz.UTC)
