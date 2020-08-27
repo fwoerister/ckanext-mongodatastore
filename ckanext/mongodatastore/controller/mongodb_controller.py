@@ -8,6 +8,7 @@ from ckan.common import config
 from ckan.plugins import toolkit
 from pymongo import MongoClient
 from pymongo.collation import Collation
+from pymongo.errors import BulkWriteError
 
 from ckanext.mongodatastore.controller.querystore_controller import QueryStoreController
 from ckanext.mongodatastore.exceptions import MongoDbControllerException, QueryNotFoundException
@@ -202,10 +203,13 @@ class VersionedDataStoreController:
                     record['_hash'] = calculate_hash(record)
                     record['_valid_to'] = datetime.max
 
-                col.insert_many(records)
-                col.update_many({'_created': {'$exists': False}},
-                                {'$currentDate': {'_created': True},
-                                 '$set': {'_latest': True}})
+                try:
+                    col.insert_many(records)
+                    col.update_many({'_created': {'$exists': False}},
+                                    {'$currentDate': {'_created': True},
+                                     '$set': {'_latest': True}})
+                except BulkWriteError as bwe:
+                    log.error(bwe.details)
 
         def upsert(self, resource_id, records, dry_run=False):
             col, meta, fields = self.__get_collections(resource_id)
@@ -257,7 +261,7 @@ class VersionedDataStoreController:
             if sort:
                 sort = transform_sort(sort) + [('_id', 1)]
             else:
-                sort = [('_created', 1), ('_id', 1)]
+                sort = [('_id', 1)]
 
             projected_schema = [field for field in fields.find() if field[u'id'] in projection.keys()]
 
