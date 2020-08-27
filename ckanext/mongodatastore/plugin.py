@@ -6,6 +6,11 @@ from flask import Blueprint
 from ckanext.mongodatastore.datadump.datadump import dump_dataset
 from ckanext.mongodatastore.datastore_backend import MongoDataStoreBackend
 from ckanext.mongodatastore.logic.action import issue_query_pid, querystore_resolve
+import urllib
+
+
+def urlencode(s):
+    return urllib.parse.quote(s).replace('-', '--')
 
 
 class MongodatastorePlugin(plugins.SingletonPlugin):
