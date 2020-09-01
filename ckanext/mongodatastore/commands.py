@@ -42,7 +42,7 @@ def create_schema(ctx, config):
 def check_integrity(ctx, config):
     load_config(config or ctx.obj['config'])
 
-    cntr = VersionedDataStoreController()
+    cntr = VersionedDataStoreController.get_instance()
     error_list = []
 
     start = datetime.utcnow()
