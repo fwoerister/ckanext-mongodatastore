@@ -27,11 +27,11 @@ def log_parameter_not_used_warning(param_list):
 
 class MongoDataStoreBackend(DatastoreBackend):
     def __init__(self):
-        self.mongo_cntr = VersionedDataStoreController.get_instance()
         self.enable_sql_search = True
+        self.cntr = VersionedDataStoreController()
 
-    def configure(self, cfg):
-        VersionedDataStoreController.reload_config(cfg)
+    @staticmethod
+    def configure(cfg):
         return cfg
 
     def create(self, context, data_dict):
@@ -56,11 +56,11 @@ class MongoDataStoreBackend(DatastoreBackend):
         if indexes:
             indexes = indexes.split(',')
 
-        self.mongo_cntr.update_schema(resource_id, fields, indexes, primary_key)
-        self.mongo_cntr.create_resource(resource_id, primary_key)
+        self.cntr.update_schema(resource_id, fields, indexes, primary_key)
+        self.cntr.create_resource(resource_id, primary_key)
 
         if records:
-            self.mongo_cntr.upsert(resource_id, records)
+            self.cntr.upsert(resource_id, records)
 
         return data_dict
 
@@ -76,8 +76,8 @@ class MongoDataStoreBackend(DatastoreBackend):
         #     [('force', force), ('calculate_record_count', calculate_record_count)])
 
         operations = {
-            'insert': self.mongo_cntr.insert,
-            'upsert': self.mongo_cntr.upsert,
+            'insert': self.cntr.insert,
+            'upsert': self.cntr.upsert,
             'update': lambda a, b, c: raise_exeption(NotImplementedError())
         }
 
@@ -96,7 +96,7 @@ class MongoDataStoreBackend(DatastoreBackend):
         # log_parameter_not_used_warning(
         #     [('force', force), ('calculate_record_count', calculate_record_count)])
 
-        self.mongo_cntr.delete_resource(resource_id, filters)
+        self.cntr.delete_resource(resource_id, filters)
 
         return data_dict
 
@@ -143,26 +143,23 @@ class MongoDataStoreBackend(DatastoreBackend):
         if sort:
             sort = transform_sort(sort.split(','))
 
-        result = self.mongo_cntr.query_current_state(resource_id, statement, projection, sort, offset, limit, distinct,
-                                                     include_total, projected_schema)
-
+        result = self.cntr.query_current_state(resource_id, statement, projection, sort, offset, limit, distinct,
+                                               include_total, projected_schema)
         result['offset'] = offset
         result['limit'] = limit
         result['fields'] = schema
-
         return result
 
     def search_sql(self, context, data_dict):
         raise NotImplementedError()
 
     def resource_exists(self, id):
-        exists = self.mongo_cntr.resource_exists(id)
+        exists = self.cntr.resource_exists(id)
         res_metadata = get_action('resource_show')(None, {'id': id})
-
         return exists and res_metadata['datastore_active']
 
     def resource_fields(self, resource_id):
-        return self.mongo_cntr.resource_fields(resource_id)
+        return self.cntr.resource_fields(resource_id)
 
     def resource_info(self, resource_id):
         return self.resource_fields(resource_id)
@@ -173,7 +170,7 @@ class MongoDataStoreBackend(DatastoreBackend):
         return False, alias
 
     def get_all_ids(self):
-        return self.mongo_cntr.get_all_ids()
+        return self.cntr.get_all_ids()
 
     def create_function(self, *args, **kwargs):
         raise NotImplementedError()

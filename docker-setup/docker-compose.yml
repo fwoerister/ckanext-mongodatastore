@@ -129,14 +129,14 @@ services:
 
   mdb-config:
     container_name: mdb-config
-    image: mongo
+    image: mongo:4.4.0-bionic
     command: mongod --port 27017 --configsvr --replSet configserver --oplogSize 16 --bind_ip_all
     entrypoint: ["/scripts/setup-config.sh"]
     volumes:
       - ./mongodb/scripts:/scripts
   mdb-shard01:
     container_name: mdb-shard01
-    image: mongo
+    image: mongo:4.4.0-bionic
     command: mongod --port 27018 --shardsvr --replSet shard01 --oplogSize 16 --bind_ip_all
     entrypoint: ["/scripts/setup-shard01.sh"]
     volumes:
@@ -150,7 +150,7 @@ services:
       - ./mongodb/scripts:/scripts
   mdb-shard03:
     container_name: mdb-shard03
-    image: mongo
+    image: mongo:4.4.0-bionic
     command: mongod --port 27020 --shardsvr --replSet shard03 --oplogSize 16 --bind_ip_all
     entrypoint: ["/scripts/setup-shard03.sh"]
     volumes:
@@ -158,7 +158,7 @@ services:
 
   mongodb:
     container_name: mongodb
-    image: mongo
+    image: mongo:4.4.0-bionic
     command: mongos --port 27017 --configdb configserver/mdb-config:27017 --bind_ip_all
     entrypoint: ["/scripts/setup-router.sh"]
     ports:
