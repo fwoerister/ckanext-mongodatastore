@@ -151,11 +151,8 @@ class VersionedDataStoreController:
                 [('_created', pymongo.ASCENDING), ('_valid_to', pymongo.DESCENDING), ('_id', pymongo.ASCENDING)],
                 name='_created_valid_to_index')
 
-            col.create_index([('_latest', pymongo.DESCENDING), (primary_key, pymongo.ASCENDING)],
+            col.create_index([('_latest', pymongo.DESCENDING), ('_id', pymongo.ASCENDING)],
                              name='_valid_to_pk_index')
-
-            col.create_index([(primary_key, pymongo.ASCENDING)],
-                             name='_id_index')
 
         def delete_resource(self, resource_id, filters={}):
             col = self.client.get_database(CKAN_DATASTORE).get_collection(resource_id)
@@ -168,20 +165,19 @@ class VersionedDataStoreController:
             fields.insert_many(field_definitions)
 
             type_dict = {}
-            text_indices = []
+            text_fields = []
 
             for field in field_definitions:
                 if field['type'] == 'text':
-                    text_indices.append(field['id'])
-                    collection.create_index([(field['id'], 1)], collation=Collation(locale='en'))
+                    text_fields.append(field['id'])
                 type_dict[field['id']] = field['type']
 
             if indexes:
                 for index in indexes:
-                    if index != primary_key and index not in text_indices:
-                        collection.create_index([(index, pymongo.ASCENDING), ('_created', pymongo.DESCENDING),
-                                                 ('_latest', pymongo.DESCENDING)],
-                                                name='{0}_index'.format(index))
+                    if index != primary_key and index not in text_fields:
+                        collection.create_index([(index, pymongo.ASCENDING)], name='{0}_index'.format(index))
+                    else:
+                        collection.create_index([(field['id'], 1)], collation=Collation(locale='en'))
             for field in field_definitions:
                 field.pop('_id')
 

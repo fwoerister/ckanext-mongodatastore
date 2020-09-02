@@ -155,12 +155,35 @@ services:
     entrypoint: ["/scripts/setup-shard03.sh"]
     volumes:
       - ./mongodb/scripts:/scripts
+  mdb-shard04:
+    container_name: mdb-shard04
+    image: mongo:4.4.0-bionic
+    command: mongod --port 27021 --shardsvr --replSet shard04 --oplogSize 16 --bind_ip_all --wiredTigerCacheSizeGB 5
+    entrypoint: ["/scripts/setup-shard04.sh"]
+    volumes:
+      - ./mongodb/scripts:/scripts
+
+  mdb-shard05:
+    container_name: mdb-shard05
+    image: mongo:4.4.0-bionic
+    command: mongod --port 27022 --shardsvr --replSet shard05 --oplogSize 16 --bind_ip_all --wiredTigerCacheSizeGB 5
+    entrypoint: ["/scripts/setup-shard05.sh"]
+    volumes:
+      - ./mongodb/scripts:/scripts
+
+  mdb-shard06:
+    container_name: mdb-shard06
+    image: mongo:4.4.0-bionic
+    command: mongod --port 27023 --shardsvr --replSet shard06 --oplogSize 16 --bind_ip_all --wiredTigerCacheSizeGB 5
+    entrypoint: ["/scripts/setup-shard06.sh"]
+    volumes:
+      - ./mongodb/scripts:/scripts
 
   mongodb:
     container_name: mongodb
     image: mongo:4.4.0-bionic
     command: mongos --port 27017 --configdb configserver/mdb-config:27017 --bind_ip_all
-    entrypoint: ["/scripts/setup-router3shards.sh"]
+    entrypoint: ["/scripts/setup-router6shards.sh"]
     ports:
       - "27017:27017"
     volumes:
@@ -170,3 +193,6 @@ services:
       - mdb-shard01
       - mdb-shard02
       - mdb-shard03
+      - mdb-shard04
+      - mdb-shard05
+      - mdb-shard06
