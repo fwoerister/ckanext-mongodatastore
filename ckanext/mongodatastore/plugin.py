@@ -6,11 +6,7 @@ from flask import Blueprint
 from ckanext.mongodatastore.datadump.datadump import dump_dataset
 from ckanext.mongodatastore.datastore_backend import MongoDataStoreBackend
 from ckanext.mongodatastore.logic.action import issue_query_pid, querystore_resolve
-import urllib
-
-
-def urlencode(s):
-    return urllib.parse.quote(s).replace('-', '--')
+from ckanext.mongodatastore.util import urlencode
 
 
 class MongodatastorePlugin(plugins.SingletonPlugin):
@@ -55,9 +51,7 @@ class MongodatastorePlugin(plugins.SingletonPlugin):
         return actions
 
     def get_blueprint(self):
-        # Create Blueprint for plugin
         blueprint = Blueprint(self.name, self.__module__)
-        # Add plugin url rules to Blueprint object
         rules = [
             (u'/datadump/querystore_resolve/<int:pid>', u'querystore_resolve', dump_dataset),
         ]
