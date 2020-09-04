@@ -8,6 +8,7 @@ from ckan.common import config
 from ckan.plugins import toolkit
 from pymongo import MongoClient
 from pymongo.collation import Collation
+from pymongo.errors import BulkWriteError
 
 from ckanext.mongodatastore.controller.querystore_controller import QueryStoreController
 from ckanext.mongodatastore.exceptions import MongoDbControllerException, QueryNotFoundException
@@ -30,6 +31,7 @@ type_conversion_dict = {
     'float': float,
     'number': float,
     'numeric': float,
+    'bigint': long
 }
 CKAN_DATASTORE = config.get(u'ckan.datastore.database')
 CKAN_SITE_URL = config.get(u'ckan.site_url')
@@ -44,6 +46,12 @@ def calculate_resultset_hash_job(pid):
     parsed_query = json.loads(q.query, object_hook=decodeDateTime)
 
     log.info("fetch {0}".format(parsed_query['filter']))
+
+    parsed_query['filter'].update({
+        '_valid_to': {'$gt': q.timestamp},
+        '_created': {'$lte': q.timestamp}
+    })
+
     result = c.find(filter=parsed_query['filter'], projection=parsed_query['projection'], sort=parsed_query['sort'])
 
     _hash = calculate_hash(result)
@@ -143,15 +151,12 @@ class VersionedDataStoreController:
                 [('_created', pymongo.ASCENDING), ('_valid_to', pymongo.DESCENDING), ('_id', pymongo.ASCENDING)],
                 name='_created_valid_to_index')
 
-            col.create_index([('_latest', pymongo.DESCENDING), (primary_key, pymongo.ASCENDING)],
+            col.create_index([('_latest', pymongo.DESCENDING), ('_id', pymongo.ASCENDING)],
                              name='_valid_to_pk_index')
-
-            col.create_index([(primary_key, pymongo.ASCENDING)],
-                             name='_id_index')
 
         def delete_resource(self, resource_id, filters={}):
             col = self.client.get_database(CKAN_DATASTORE).get_collection(resource_id)
-            filters['_valid_to'] = {'$exists': False}
+            filters.update({'_latest': True})
             col.update_many(filters, {'$currentDate': {'_valid_to': True}, '$set': {'_latest': False}})
 
         def update_schema(self, resource_id, field_definitions, indexes, primary_key):
@@ -160,20 +165,19 @@ class VersionedDataStoreController:
             fields.insert_many(field_definitions)
 
             type_dict = {}
-            text_indices = []
+            text_fields = []
 
             for field in field_definitions:
                 if field['type'] == 'text':
-                    text_indices.append(field['id'])
-                    collection.create_index([(field['id'], 1)], collation=Collation(locale='en'))
+                    text_fields.append(field['id'])
                 type_dict[field['id']] = field['type']
 
             if indexes:
                 for index in indexes:
-                    if index != primary_key and index not in text_indices:
-                        collection.create_index([(index, pymongo.ASCENDING), ('_created', pymongo.DESCENDING),
-                                                 ('_latest', pymongo.DESCENDING)],
-                                                name='{0}_index'.format(index))
+                    if index != primary_key and index not in text_fields:
+                        collection.create_index([(index, pymongo.ASCENDING)], name='{0}_index'.format(index))
+                    else:
+                        collection.create_index([(field['id'], 1)], collation=Collation(locale='en'))
             for field in field_definitions:
                 field.pop('_id')
 
@@ -193,9 +197,15 @@ class VersionedDataStoreController:
             if not dry_run:
                 for record in records:
                     record['_hash'] = calculate_hash(record)
-                    col.update_one({record_id_key: record[record_id_key], '_latest': True},
-                                   {'$currentDate': {'_created': True},
-                                    '$set': record}, upsert=True)
+                    record['_valid_to'] = datetime.max
+
+                try:
+                    col.insert_many(records)
+                    col.update_many({'_created': {'$exists': False}},
+                                    {'$currentDate': {'_created': True},
+                                     '$set': {'_latest': True}})
+                except BulkWriteError as bwe:
+                    log.error(bwe.details)
 
         def upsert(self, resource_id, records, dry_run=False):
             col, meta, fields = self.__get_collections(resource_id)
@@ -210,17 +220,25 @@ class VersionedDataStoreController:
                                                  'value has to be set for every record. '
                                                  'In this collection the id attribute is "{0}"'.format(record_id_key))
 
+            required_updates = []
             for record in records:
                 if not dry_run:
                     record['_hash'] = calculate_hash(record)
                     if self.__update_required(resource_id, record, record_id_key):
-                        filters = {'_latest': True, record_id_key: record[record_id_key]}
-                        col.update_one(filters, {'$currentDate': {'_valid_to': True}, '$set': {'_latest': False}})
                         record['_latest'] = True
-                        record['_created'] = datetime.now(pytz.UTC)
-                        col.insert_one(record)
+                        record['_valid_to'] = datetime.max
+                        required_updates.append(record)
 
-        def issue_pid(self, resource_id, statement, projection, sort, distinct, q):
+            col.update_many({'id': {'$in': [record[record_id_key] for record in required_updates]},
+                             '_latest': True},
+                            {'$currentDate': {'_valid_to': True},
+                             '$set': {'_latest': False}})
+            col.insert_many(required_updates)
+            col.update_many({'_created': {'$exists': False}},
+                            {'$currentDate': {'_created': True},
+                             '$set': {'_latest': True}})
+
+        def issue_pid(self, resource_id, statement, projection, sort, q):
             now = datetime.now(pytz.UTC)
 
             col, meta, fields = self.__get_collections(resource_id)
@@ -234,16 +252,12 @@ class VersionedDataStoreController:
 
             statement = normalize_json(statement)
 
-            statement.update({'_valid_to': {'$gt': now},
-                              '_created': {'$lte': now}
-                              })
-
             projection = create_projection(fields.find(), projection)
 
             if sort:
-                sort = transform_sort(sort)
+                sort = transform_sort(sort) + [('_id', 1)]
             else:
-                sort = [('_created', 1), ('_id', 1)]
+                sort = [('_id', 1)]
 
             projected_schema = [field for field in fields.find() if field[u'id'] in projection.keys()]
 
@@ -255,7 +269,7 @@ class VersionedDataStoreController:
                                                            None, HASH_ALGORITHM().name,
                                                            projected_schema)
 
-            toolkit.enqueue_job(calculate_resultset_hash_job, [query.id], queue=(QUEUE_NAME))
+            toolkit.enqueue_job(calculate_resultset_hash_job, [query.id], queue=QUEUE_NAME)
 
             result['metadata'] = meta_data
             result['query'] = query
@@ -282,6 +296,10 @@ class VersionedDataStoreController:
                 result['pid'] = pid
 
                 if preview:
+                    parsed_query['filter'].update({
+                        '_valid_to': {'$gt': q.timestamp},
+                        '_created': {'$lte': q.timestamp}
+                    })
                     result['records'] = col.find(filter=parsed_query.get('filter'),
                                                  projection=parsed_query.get('projection'),
                                                  sort=parsed_query.get('sort'),
@@ -296,7 +314,7 @@ class VersionedDataStoreController:
                     'query_hash': q.query_hash,
                     'hash_algorithm': q.hash_algorithm,
                     'result_set_hash': q.result_set_hash,
-                    'timestamp': q.timestamp,
+                    'timestamp': str(q.timestamp),
                     'handle_pid': q.handle_pid
                 }
                 result['query'] = query
@@ -321,7 +339,7 @@ class VersionedDataStoreController:
                 raise QueryNotFoundException('No query with PID {0} found'.format(pid))
 
         def query_current_state(self, resource_id, statement, projection, sort, offset, limit, distinct, include_total,
-                                projected_schema, unversioned=False):
+                                projected_schema):
             col, _, _ = self.__get_collections(resource_id)
             result = dict()
 

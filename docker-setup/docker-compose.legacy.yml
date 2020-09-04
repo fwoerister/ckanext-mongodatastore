@@ -1,0 +1,86 @@
+# docker-compose build && docker-compose up -d
+# If "docker-compose logs ckan" shows DB not ready, run "docker-compose restart ckan" a few times.
+version: "3"
+
+volumes:
+  ckan_config:
+  ckan_home:
+  ckan_storage:
+  ckan_leg_config:
+  ckan_leg_home:
+  ckan_leg_storage:
+  pg_data:
+
+services:
+
+  ckan:
+    container_name: ckan
+    build:
+      context: .
+      dockerfile: ckan_legacy/Dockerfile
+      args:
+        - CKAN_SITE_URL=${CKAN_SITE_URL}
+    links:
+      - db
+      - solr
+      - redis
+    ports:
+      - "0.0.0.0:${CKAN_PORT}:5000"
+    environment:
+      # Defaults work with linked containers, change to use own Postgres, SolR, Redis or Datapusher
+      - CKAN_SQLALCHEMY_URL=postgresql://ckan:${POSTGRES_PASSWORD}@db/ckan
+      - CKAN_DATASTORE_WRITE_URL=postgresql://ckan:${POSTGRES_PASSWORD}@db/datastore
+      - CKAN_DATASTORE_READ_URL=postgresql://datastore_ro:${DATASTORE_READONLY_PASSWORD}@db/datastore
+      - CKAN_DATASTORE_DATABASE=CKAN_Datastore
+      - CKAN_QUERYSTORE_URL=postgresql://ckan:ckan@db/querystore
+      - CKAN_SOLR_URL=http://solr:8983/solr/ckan
+      - CKAN_REDIS_URL=redis://redis:6379/1
+      - CKAN_DATAPUSHER_URL=http://datapusher:8800
+      - CKAN_SITE_URL=${CKAN_SITE_URL}
+      - CKAN_SITE_ID=default
+      - CKAN_MAX_UPLOAD_SIZE_MB=1000000
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
+      - DATASTORE=NEW
+    volumes:
+      - ckan_config:/etc/ckan
+      - ckan_home:/usr/lib/ckan
+      - ckan_storage:/var/lib/ckan
+
+  datapusher:
+    container_name: datapusher
+    build:
+      context: .
+      dockerfile: datapusher/Dockerfile
+    environment:
+      - MAX_CONTENT_LENGTH=1000
+    ports:
+      - "8800:8800"
+
+  db:
+    container_name: db
+    build:
+      context: postgresql
+      dockerfile: Dockerfile
+      args:
+        - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
+        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    environment:
+      - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+  solr:
+    container_name: solr
+    build:
+      context: .
+      dockerfile: solr/Dockerfile
+    ports:
+      - "8983:8983"
+
+  redis:
+    container_name: redis
+    image: redis:latest

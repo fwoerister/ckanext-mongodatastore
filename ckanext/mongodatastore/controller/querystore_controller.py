@@ -1,3 +1,5 @@
+import logging
+
 from ckan.common import config
 from ckan.logic import get_action
 from pyhandle.clientcredentials import PIDClientCredentials
@@ -5,6 +7,7 @@ from pyhandle.handleclient import PyHandleClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+from ckanext.mongodatastore.exceptions import QueryNotFoundException
 from ckanext.mongodatastore.model import Query, RecordField, MetaDataField
 from ckanext.mongodatastore.util import calculate_hash
 
@@ -13,6 +16,8 @@ API_URL_TEMPLATE = '{}/api/3/action/querystore_resolve?pid={}'
 STREAM_URL_TEMPLATE = '{}/datadump/querystore_resolve/{}'
 
 CKAN_SITE_URL = config.get(u'ckan.site_url')
+
+log = logging.getLogger(__name__)
 
 
 class QueryStoreController:
@@ -103,11 +108,14 @@ class QueryStoreController:
         return q, metadata
 
     def update_hash(self, pid, result_hash):
+        log.info('try to update pid %s with hash %s', pid, result_hash)
+
         staged_query = self.session.query(Query).filter(Query.id == pid).first()
-        q = self.session.query(Query, RecordField).filter(Query.query_hash == staged_query.query_hash,
-                                                          Query.result_set_hash == result_hash,
-                                                          Query.result_set_hash is not None,
-                                                          Query.record_field_hash == staged_query.record_field_hash).first()
+        q = self.session.query(Query).filter(Query.query_hash == staged_query.query_hash,
+                                             Query.result_set_hash == result_hash,
+                                             Query.result_set_hash is not None,
+                                             Query.handle_pid is not None,
+                                             Query.record_field_hash == staged_query.record_field_hash).first()
 
         if q:
             meta_data = {}
@@ -137,6 +145,9 @@ class QueryStoreController:
 
     def retrieve_query(self, pid):
         result = self.session.query(Query).filter(Query.id == pid).first()
+
+        if not result:
+            raise QueryNotFoundException()
 
         meta_data = {}
         for meta_field in self.session.query(MetaDataField).filter(MetaDataField.query_id == result.id):

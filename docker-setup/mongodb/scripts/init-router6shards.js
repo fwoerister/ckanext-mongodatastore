@@ -1,0 +1,6 @@
+sh.addShard("shard01/mdb-shard01:27018")
+sh.addShard("shard02/mdb-shard02:27019")
+sh.addShard("shard03/mdb-shard03:27020")
+sh.addShard("shard04/mdb-shard04:27021")
+sh.addShard("shard05/mdb-shard05:27022")
+sh.addShard("shard05/mdb-shard06:27023")

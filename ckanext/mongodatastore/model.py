@@ -1,4 +1,4 @@
-from sqlalchemy import Column, BIGINT, TEXT, INT, ForeignKey, UniqueConstraint
+from sqlalchemy import Column, BIGINT, TEXT, INT, ForeignKey, UniqueConstraint, DATETIME, TIMESTAMP
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -8,20 +8,18 @@ Base = declarative_base()
 class Query(Base):
     def __init__(self):
         pass
-
     __tablename__ = 'QUERY'
-
     id = Column(BIGINT, primary_key=True)
     resource_id = Column(TEXT)
     handle_pid = Column(TEXT)
-    timestamp = Column(TEXT)
+    timestamp = Column(TIMESTAMP)
     query = Column(TEXT)
     query_hash = Column(TEXT)
     result_set_hash = Column(TEXT)
     hash_algorithm = Column(TEXT)
     record_field_hash = Column(TEXT)
-    record_fields = relationship("RecordField", lazy='subquery', cascade='all, delete-orphan')
-    metadata_fields = relationship("MetaDataField", lazy='subquery', cascade='all, delete-orphan')
+    record_fields = relationship("RecordField", lazy='joined', cascade='all, delete-orphan')
+    metadata_fields = relationship("MetaDataField", lazy='joined', cascade='all, delete-orphan')
 
 
 class MetaDataField(Base):

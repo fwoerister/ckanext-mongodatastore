@@ -1,6 +1,4 @@
 import logging
-from collections import OrderedDict
-from json import JSONDecoder
 
 from ckan.lib.base import abort
 from ckan.logic import get_action
@@ -51,9 +49,9 @@ class MongoDataStoreBackend(DatastoreBackend):
         if 'records' in data_dict:
             data_dict['records'] = None
 
-        log_parameter_not_used_warning(
-            [('force', force), ('resource', resource), ('aliases', aliases),
-             ('triggers', triggers), ('calculate_record_count', calculate_record_count)])
+        # log_parameter_not_used_warning(
+        #     [('force', force), ('resource', resource), ('aliases', aliases),
+        #      ('triggers', triggers), ('calculate_record_count', calculate_record_count)])
 
         if indexes:
             indexes = indexes.split(',')
@@ -74,8 +72,8 @@ class MongoDataStoreBackend(DatastoreBackend):
         calculate_record_count = data_dict.get(u'calculate_record_count', False)
         dry_run = data_dict.get(u'dry_run', False)
 
-        log_parameter_not_used_warning(
-            [('force', force), ('calculate_record_count', calculate_record_count)])
+        # log_parameter_not_used_warning(
+        #     [('force', force), ('calculate_record_count', calculate_record_count)])
 
         operations = {
             'insert': self.mongo_cntr.insert,
@@ -89,20 +87,18 @@ class MongoDataStoreBackend(DatastoreBackend):
         data_dict['records'] = []
         return data_dict
 
-
     def delete(self, context, data_dict):
         resource_id = data_dict.get(u'resource_id')
         force = data_dict.get(u'force', False)
         filters = data_dict.get('filters', {})
         calculate_record_count = data_dict.get(u'calculate_record_count', False)
 
-        log_parameter_not_used_warning(
-            [('force', force), ('calculate_record_count', calculate_record_count)])
+        # log_parameter_not_used_warning(
+        #     [('force', force), ('calculate_record_count', calculate_record_count)])
 
         self.mongo_cntr.delete_resource(resource_id, filters)
 
         return data_dict
-
 
     def search(self, context, data_dict):
         resource_id = data_dict.get(u'resource_id')
@@ -125,8 +121,8 @@ class MongoDataStoreBackend(DatastoreBackend):
         if limit > MAX_LIMIT:
             limit = MAX_LIMIT
 
-        log_parameter_not_used_warning([(u'plain', plain), (u'language', language),
-                                        (u'total_estimation_threshold', total_estimation_threshold)])
+        # log_parameter_not_used_warning([(u'plain', plain), (u'language', language),
+        #                                 (u'total_estimation_threshold', total_estimation_threshold)])
 
         if records_format in [u'tsv', u'lists']:
             abort(501, u"The current version of MongoDatastore only supports CSV exports!")
@@ -156,40 +152,31 @@ class MongoDataStoreBackend(DatastoreBackend):
 
         return result
 
-
     def search_sql(self, context, data_dict):
         raise NotImplementedError()
 
-
     def resource_exists(self, id):
-        log.debug(u'resource exists is called on mongo datastore with parameter: {0}'.format(id))
         exists = self.mongo_cntr.resource_exists(id)
         res_metadata = get_action('resource_show')(None, {'id': id})
 
         return exists and res_metadata['datastore_active']
 
-
     def resource_fields(self, resource_id):
         return self.mongo_cntr.resource_fields(resource_id)
 
-
     def resource_info(self, resource_id):
         return self.resource_fields(resource_id)
-
 
     def resource_id_from_alias(self, alias):
         if self.resource_exists(alias):
             return True, alias
         return False, alias
 
-
     def get_all_ids(self):
         return self.mongo_cntr.get_all_ids()
 
-
     def create_function(self, *args, **kwargs):
         raise NotImplementedError()
-
 
     def drop_function(self, *args, **kwargs):
         raise NotImplementedError()
