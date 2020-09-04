@@ -15,7 +15,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # http://packaging.python.org/en/latest/tutorial.html#version
-    version='0.0.1',
+    version='0.0.2',
 
     description='''A MongoDB DataStoreBackend implementation, that supports data citation.''',
     long_description=long_description,
@@ -28,7 +28,7 @@ setup(
     author_email='''e1126205@student.tuwien.ac.at''',
 
     # Choose your license
-    license='MIT',
+    license='GNU Affero General Public License v3 or later (AGPLv3+)',
 
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
@@ -39,7 +39,7 @@ setup(
         'Development Status :: 4 - Beta',
 
         # Pick your license as you wish (should match "license" above)
-        'License :: OSI Approved :: MIT License',
+        'License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)',
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.

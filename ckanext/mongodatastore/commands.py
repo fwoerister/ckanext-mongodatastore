@@ -6,8 +6,8 @@ from ckan.common import config as ckan_config
 from ckan.lib.cli import paster_click_group, click_config_option, load_config
 from sqlalchemy import create_engine
 
-from ckanext.mongodatastore.model import Base
 from ckanext.mongodatastore.controller.mongodb_controller import VersionedDataStoreController
+from ckanext.mongodatastore.model import Base
 
 log = logging.getLogger(__name__)
 

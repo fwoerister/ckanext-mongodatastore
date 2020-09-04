@@ -14,7 +14,7 @@ from ckanext.mongodatastore.controller.querystore_controller import QueryStoreCo
 from ckanext.mongodatastore.exceptions import MongoDbControllerException, QueryNotFoundException
 from ckanext.mongodatastore.query_preprocessor import transform_query_to_statement, transform_filter, create_projection, \
     transform_sort
-from ckanext.mongodatastore.util import normalize_json, DateTimeEncoder, HASH_ALGORITHM, decodeDateTime, \
+from ckanext.mongodatastore.util import normalize_json, DateTimeEncoder, HASH_ALGORITHM, decode_date_time, \
     calculate_hash
 
 QUEUE_NAME = u'hash_queue'
@@ -43,7 +43,7 @@ def calculate_resultset_hash_job(pid):
 
     q, metadata = querystore.retrieve_query(pid)
     c = client.get_database(config.get(u'ckan.datastore.database')).get_collection(q.resource_id)
-    parsed_query = json.loads(q.query, object_hook=decodeDateTime)
+    parsed_query = json.loads(q.query, object_hook=decode_date_time)
 
     log.info("fetch {0}".format(parsed_query['filter']))
 
@@ -290,7 +290,7 @@ class VersionedDataStoreController:
 
             if q:
                 col, meta, _ = self.__get_collections(q.resource_id)
-                parsed_query = json.loads(q.query, object_hook=decodeDateTime)
+                parsed_query = json.loads(q.query, object_hook=decode_date_time)
                 result = dict()
 
                 result['pid'] = pid
@@ -343,17 +343,7 @@ class VersionedDataStoreController:
             col, _, _ = self.__get_collections(resource_id)
             result = dict()
 
-            get_full_collection = statement == {}
-
-            if get_full_collection:
-                statement = {'_latest': True}
-            else:
-                statement = {
-                    '$and': [
-                        {'_latest': True},
-                        statement
-                    ]
-                }
+            statement['_latest'] = True
 
             if sort:
                 sort = sort + [('_id', 1)]
@@ -361,10 +351,7 @@ class VersionedDataStoreController:
                 sort = [('_id', 1)]
 
             if include_total:
-                if get_full_collection:
-                    result['total'] = col.count_documents({'_latest': True})
-                else:
-                    result['total'] = col.count_documents(statement)
+                result['total'] = col.count_documents(statement)
 
             projection = self._prepare_projection(projection)
 
