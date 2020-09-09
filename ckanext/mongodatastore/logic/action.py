@@ -55,3 +55,36 @@ def querystore_resolve(context, data_dict):
         result['records_preview'] = None
 
     return result
+
+@logic.side_effect_free
+def nonversioned_query(context, data_dict):
+    cntr = VersionedDataStoreController.get_instance()
+
+    default_projection = {}
+
+    statement = data_dict.get('statement', {})
+
+    resource_id = dict.get('id')
+    q = data_dict.get('q', None)
+    projection = data_dict.get('projection', default_projection)
+    sort = data_dict.get('sort', None)
+    skip = data_dict.get('offset', 0)
+    limit = data_dict.get('limit', 0)
+
+    if sort:
+        sort = sort.split(',')
+
+    if skip:
+        skip = int(skip)
+    if limit:
+        limit = int(limit)
+
+    result = cntr.nv_query(resource_id, statement, q, projection, sort, skip, limit)
+
+    if 'records' in result.keys():
+        result['records_preview'] = list(result.get('records'))
+        result.pop('records')
+    else:
+        result['records_preview'] = None
+
+    return result
