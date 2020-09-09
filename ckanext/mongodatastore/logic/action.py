@@ -64,7 +64,7 @@ def nonversioned_query(context, data_dict):
 
     statement = data_dict.get('statement', {})
 
-    resource_id = dict.get('id')
+    resource_id = data_dict.get('id')
     q = data_dict.get('q', None)
     projection = data_dict.get('projection', default_projection)
     sort = data_dict.get('sort', None)
