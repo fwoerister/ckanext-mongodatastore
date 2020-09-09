@@ -6,7 +6,6 @@ def create_projection(schema, projection):
     for field in schema:
         if len(projection) == 0 or field['id'] in projection.keys():
             new_projection[field['id']] = 1
-    new_projection['_id'] = 0
     return new_projection
 
 

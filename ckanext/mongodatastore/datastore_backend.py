@@ -19,10 +19,11 @@ def raise_exeption(ex):
 
 
 def log_parameter_not_used_warning(param_list):
-    for param in param_list:
-        if param[1]:
-            log.debug('The parameter {0} is set, but has no effect in this DataStore backend implementation!'
-                      .format(param[0]))
+    pass
+#    for param in param_list:
+#        if param[1]:
+#            log.debug('The parameter {0} is set, but has no effect in this DataStore backend implementation!'
+#                      .format(param[0]))
 
 
 class MongoDataStoreBackend(DatastoreBackend):
@@ -114,6 +115,9 @@ class MongoDataStoreBackend(DatastoreBackend):
         include_total = data_dict.get(u'include_total', True)
         total_estimation_threshold = data_dict.get(u'total_estimation_threshold', None)
         records_format = data_dict.get(u'records_format', u'objects')
+
+        log.debug('search {}'.format(filters))
+        log.debug('search {}'.format(query))
 
         if limit < MIN_LIMIT:
             limit = MIN_LIMIT

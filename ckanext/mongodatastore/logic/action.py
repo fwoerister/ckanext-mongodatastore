@@ -1,3 +1,4 @@
+import json
 import logging
 
 from ckan import logic
@@ -62,14 +63,16 @@ def nonversioned_query(context, data_dict):
 
     default_projection = {}
 
-    statement = data_dict.get('statement', {})
-
-    resource_id = data_dict.get('id')
+    resource_id = data_dict.get('resource_id')
     q = data_dict.get('q', None)
     projection = data_dict.get('projection', default_projection)
     sort = data_dict.get('sort', None)
     skip = data_dict.get('offset', 0)
     limit = data_dict.get('limit', 0)
+    statement = json.loads(data_dict.get('filters', '{}'))
+
+    log.debug('nv {}'.format(statement))
+    log.debug('nv {}'.format(q))
 
     if sort:
         sort = sort.split(',')

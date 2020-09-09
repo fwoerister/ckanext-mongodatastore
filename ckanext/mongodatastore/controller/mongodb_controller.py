@@ -79,6 +79,13 @@ class VersionedDataStoreController:
             else:
                 curs = col.find(filter=statement, projection=projection, skip=offset,
                                 limit=limit)
+
+                log.debug('query')
+                log.debug(statement)
+                log.debug(projection)
+                log.debug(offset)
+                log.debug(limit)
+
                 if sort:
                     return curs.sort(sort)
                 return curs
@@ -88,7 +95,7 @@ class VersionedDataStoreController:
             if projection and 1 in projection.values():
                 projection.update({'_id': 0})
             else:
-                projection = {'_id': 0, '_created': 0, '_valid_to': 0, '_latest': 0}
+                projection = {'_id': 0, '_created': 0, '_valid_to': 0, '_latest': 0, '_hash': 0}
 
             return normalize_json(projection)
 
@@ -374,8 +381,15 @@ class VersionedDataStoreController:
             return {'meta': meta_entry, 'schema': list(schema)}
 
         def nv_query(self, resource_id, statement, q, projection, sort, skip, limit):
-            col, _, _ = self.__get_collections(resource_id)
+            col, _, fields = self.__get_collections(resource_id)
             result = dict()
+
+            schema = fields.find({}, {'_id': 0})
+
+            if q:
+                statement = transform_query_to_statement(q, schema)
+            else:
+                statement = transform_filter(statement, schema)
 
             if sort:
                 sort = sort + [('_id', 1)]
