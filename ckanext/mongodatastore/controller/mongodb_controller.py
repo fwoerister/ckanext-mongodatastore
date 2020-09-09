@@ -140,7 +140,7 @@ class VersionedDataStoreController:
                 self.datastore.create_collection('{0}_meta'.format(resource_id))
 
             self.client.admin.command('shardCollection', 'CKAN_Datastore.{0}'.format(resource_id),
-                                      key={primary_key: 'hashed'})
+                                      key={'_id': 'hashed'})
 
             self.datastore.get_collection('{0}_meta'.format(resource_id)).insert_one(
                 {'record_id': primary_key, 'active': True})
