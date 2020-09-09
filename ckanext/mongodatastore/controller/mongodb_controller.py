@@ -365,6 +365,14 @@ class VersionedDataStoreController:
 
             return result
 
+        def resource_fields(self, resource_id):
+            col, meta, fields = self.__get_collections(resource_id)
+
+            meta_entry = meta.find_one({}, {"_id": 0})
+            schema = fields.find({}, {'_id': 0})
+
+            return {'meta': meta_entry, 'schema': list(schema)}
+
         def nv_query(self, resource_id, statement, q, projection, sort, skip, limit, projected_schema):
             col, _, _ = self.__get_collections(resource_id)
             result = dict()
@@ -388,14 +396,6 @@ class VersionedDataStoreController:
 
             return result
 
-        def resource_fields(self, resource_id):
-                col, meta, fields = self.__get_collections(resource_id)
-    
-                meta_entry = meta.find_one({}, {"_id": 0})
-                schema = fields.find({}, {'_id': 0})
-    
-                return {'meta': meta_entry, 'schema': list(schema)}
-
     @classmethod
     def get_instance(cls):
         if VersionedDataStoreController.instance is None:
@@ -410,6 +410,7 @@ class VersionedDataStoreController:
                                                                                            u'ckan.datastore.database'),
                                                                                        querystore,
                                                                                        rows_max)
+
         return VersionedDataStoreController.instance
 
     @classmethod
