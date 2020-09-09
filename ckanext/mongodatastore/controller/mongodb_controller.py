@@ -388,13 +388,13 @@ class VersionedDataStoreController:
 
             return result
 
-    def resource_fields(self, resource_id):
-            col, meta, fields = self.__get_collections(resource_id)
-
-            meta_entry = meta.find_one({}, {"_id": 0})
-            schema = fields.find({}, {'_id': 0})
-
-            return {'meta': meta_entry, 'schema': list(schema)}
+        def resource_fields(self, resource_id):
+                col, meta, fields = self.__get_collections(resource_id)
+    
+                meta_entry = meta.find_one({}, {"_id": 0})
+                schema = fields.find({}, {'_id': 0})
+    
+                return {'meta': meta_entry, 'schema': list(schema)}
 
     @classmethod
     def get_instance(cls):
