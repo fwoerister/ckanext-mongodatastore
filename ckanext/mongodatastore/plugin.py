@@ -5,7 +5,7 @@ from flask import Blueprint
 
 from ckanext.mongodatastore.datadump.datadump import dump_dataset
 from ckanext.mongodatastore.datastore_backend import MongoDataStoreBackend
-from ckanext.mongodatastore.logic.action import issue_query_pid, querystore_resolve
+from ckanext.mongodatastore.logic.action import issue_query_pid, querystore_resolve, nonversioned_query
 from ckanext.mongodatastore.util import urlencode
 
 
@@ -39,13 +39,18 @@ class MongodatastorePlugin(plugins.SingletonPlugin):
                   controller='ckanext.mongodatastore.controller.ui_controller:QueryStoreUIController',
                   action='dump_history_result_set')
 
+        m.connect('querystore.citationtext', '/querystore/render_citation_text',
+                  controller='ckanext.mongodatastore.controller.ui_controller:QueryStoreUIController',
+                  action='render_citation_text')
+
         return m
 
     # IActions
     def get_actions(self):
         actions = {
             'issue_pid': issue_query_pid,
-            'querystore_resolve': querystore_resolve
+            'querystore_resolve': querystore_resolve,
+            'nv_query': nonversioned_query
         }
 
         return actions

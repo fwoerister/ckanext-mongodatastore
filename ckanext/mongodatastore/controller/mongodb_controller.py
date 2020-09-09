@@ -365,7 +365,30 @@ class VersionedDataStoreController:
 
             return result
 
-        def resource_fields(self, resource_id):
+        def nv_query(self, resource_id, statement, q, projection, sort, skip, limit, projected_schema):
+            col, _, _ = self.__get_collections(resource_id)
+            result = dict()
+
+            if sort:
+                sort = sort + [('_id', 1)]
+            else:
+                sort = [('_id', 1)]
+
+            result['total'] = col.count_documents(statement)
+
+            projection = self._prepare_projection(projection)
+
+            res = self._execute_query(col, False, limit, skip, projected_schema, projection, sort,
+                                      statement)
+
+            result['records'] = list(res)
+
+            if type(res) != list:
+                res.close()
+
+            return result
+
+    def resource_fields(self, resource_id):
             col, meta, fields = self.__get_collections(resource_id)
 
             meta_entry = meta.find_one({}, {"_id": 0})
