@@ -373,7 +373,7 @@ class VersionedDataStoreController:
 
             return {'meta': meta_entry, 'schema': list(schema)}
 
-        def nv_query(self, resource_id, statement, q, projection, sort, skip, limit, projected_schema):
+        def nv_query(self, resource_id, statement, q, projection, sort, skip, limit):
             col, _, _ = self.__get_collections(resource_id)
             result = dict()
 
@@ -386,7 +386,7 @@ class VersionedDataStoreController:
 
             projection = self._prepare_projection(projection)
 
-            res = self._execute_query(col, False, limit, skip, projected_schema, projection, sort,
+            res = self._execute_query(col, False, limit, skip, None, projection, sort,
                                       statement)
 
             result['records'] = list(res)
