@@ -55,6 +55,8 @@ def querystore_resolve(context, data_dict):
     else:
         result['records_preview'] = None
 
+    log.debug(result)
+
     return result
 
 @logic.side_effect_free
