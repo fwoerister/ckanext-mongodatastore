@@ -293,9 +293,11 @@ class VersionedDataStoreController:
             return query.id
 
         def execute_stored_query(self, pid, offset, limit, preview=False):
+            log.debug("execute_stored_query")
             q, metadata = self.querystore.retrieve_query(pid)
 
             if q:
+                log.debug("query found")
                 col, meta, _ = self.__get_collections(q.resource_id)
                 parsed_query = json.loads(q.query, object_hook=decode_date_time)
                 result = dict()
@@ -343,6 +345,7 @@ class VersionedDataStoreController:
 
                 return result
             else:
+                log.debug("query not found")
                 raise QueryNotFoundException('No query with PID {0} found'.format(pid))
 
         def query_current_state(self, resource_id, statement, projection, sort, offset, limit, distinct, include_total,

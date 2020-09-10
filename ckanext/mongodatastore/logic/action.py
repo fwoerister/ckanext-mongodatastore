@@ -33,7 +33,7 @@ def issue_query_pid(context, data_dict):
 def querystore_resolve(context, data_dict):
     cntr = VersionedDataStoreController.get_instance()
 
-    pid = data_dict.get('pid')
+    pid = int(data_dict.get('pid'))
     skip = data_dict.get('offset', 0)
     limit = data_dict.get('limit', 0)
     include_data = bool(data_dict.get('include_data', 'True'))
