@@ -14,8 +14,7 @@ from ckanext.mongodatastore.controller.querystore_controller import QueryStoreCo
 from ckanext.mongodatastore.exceptions import MongoDbControllerException, QueryNotFoundException
 from ckanext.mongodatastore.query_preprocessor import transform_query_to_statement, transform_filter, create_projection, \
     transform_sort
-from ckanext.mongodatastore.util import normalize_json, DateTimeEncoder, HASH_ALGORITHM, decode_date_time, \
-    calculate_hash
+from ckanext.mongodatastore.util import normalize_json, HASH_ALGORITHM, calculate_hash
 
 QUEUE_NAME = u'hash_queue'
 
@@ -43,16 +42,16 @@ def calculate_resultset_hash_job(pid):
 
     q, metadata = querystore.retrieve_query(pid)
     c = client.get_database(config.get(u'ckan.datastore.database')).get_collection(q.resource_id)
-    parsed_query = json.loads(q.query, object_hook=decode_date_time)
+    stored_query = q.query
 
-    log.info("fetch {0}".format(parsed_query['filter']))
+    log.info("fetch {0}".format(stored_query['filter']))
 
-    parsed_query['filter'].update({
+    stored_query['filter'].update({
         '_valid_to': {'$gt': q.timestamp},
         '_created': {'$lte': q.timestamp}
     })
 
-    result = c.find(filter=parsed_query['filter'], projection=parsed_query['projection'], sort=parsed_query['sort'])
+    result = c.find(filter=stored_query['filter'], projection=stored_query['projection'], sort=stored_query['sort'])
 
     _hash = calculate_hash(result)
     querystore.update_hash(pid, _hash)
@@ -269,9 +268,9 @@ class VersionedDataStoreController:
             projected_schema = [field for field in fields.find() if field[u'id'] in projection.keys()]
 
             query, meta_data = self.querystore.store_query(resource_id,
-                                                           json.dumps({'filter': statement,
-                                                                       'projection': projection,
-                                                                       'sort': sort}, cls=DateTimeEncoder),
+                                                           {'filter': statement,
+                                                            'projection': projection,
+                                                            'sort': sort},
                                                            str(now),
                                                            None, HASH_ALGORITHM().name,
                                                            projected_schema)
@@ -299,19 +298,19 @@ class VersionedDataStoreController:
             if q:
                 log.debug("query found")
                 col, meta, _ = self.__get_collections(q.resource_id)
-                parsed_query = json.loads(q.query, object_hook=decode_date_time)
+                stored_query = q.query
                 result = dict()
 
                 result['pid'] = pid
 
                 if preview:
-                    parsed_query['filter'].update({
+                    stored_query['filter'].update({
                         '_valid_to': {'$gt': q.timestamp},
                         '_created': {'$lte': q.timestamp}
                     })
-                    result['records'] = col.find(filter=parsed_query.get('filter'),
-                                                 projection=parsed_query.get('projection'),
-                                                 sort=parsed_query.get('sort'),
+                    result['records'] = col.find(filter=stored_query.get('filter'),
+                                                 projection=stored_query.get('projection'),
+                                                 sort=stored_query.get('sort'),
                                                  skip=offset,
                                                  limit=limit,
                                                  hint='_created_valid_to_index')

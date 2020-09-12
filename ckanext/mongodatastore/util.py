@@ -1,27 +1,9 @@
-import datetime
 import hashlib
 import json
 import urllib
 from collections import OrderedDict
-from json import JSONEncoder
-
-import dateutil
 
 HASH_ALGORITHM = hashlib.md5
-
-
-class DateTimeEncoder(JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, (datetime.date, datetime.datetime)):
-            return '[#convert_to_date]' + obj.isoformat()
-
-
-def decode_date_time(data):
-    if type(data) == dict:
-        for key in data.keys():
-            if type(data[key]) in (str, unicode) and data[key].startswith('[#convert_to_date]'):
-                data[key] = dateutil.parser.parse(data[key][18:])
-    return data
 
 
 def normalize_json(json_data, max_depth=3):
