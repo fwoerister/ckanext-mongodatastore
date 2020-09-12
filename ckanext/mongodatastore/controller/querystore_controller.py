@@ -51,7 +51,7 @@ class QueryStoreController:
 
         q = Query()
         q.resource_id = resource_id
-        q.query = query,
+        q.query = query
         q.query_hash = query_hash
         q.result_set_hash = result_hash
         q.timestamp = timestamp
