@@ -4,7 +4,7 @@ import logging
 import xmltodict
 from flask import request, Response, abort
 
-from ckanext.mongodatastore.controller.mongodb_controller import VersionedDataStoreController
+from ckanext.mongodatastore.controller.mongodb import VersionedDataStoreController
 
 log = logging.getLogger(__name__)
 

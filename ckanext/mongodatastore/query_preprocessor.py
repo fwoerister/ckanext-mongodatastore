@@ -6,7 +6,7 @@ def create_projection(schema, projection):
     for field in schema:
         if len(projection) == 0 or field['id'] in projection.keys():
             new_projection[field['id']] = 1
-    new_projection['_id']=0
+    new_projection['_id'] = 0
     return new_projection
 
 
@@ -74,12 +74,21 @@ def transform_filter(filters, schema):
 
 
 def transform_sort(sort):
+    if type(sort) is not list:
+        sort = sort.split(',')
+
     transformed_sort = []
     for sort_arg in sort:
-        if sort_arg.split(' ')[-1] == 'asc':
-            transformed_sort.append((sort_arg[0:-3].rstrip(), pymongo.ASCENDING))
-        elif sort_arg.split(' ')[-1] == 'desc':
-            transformed_sort.append((sort_arg[0:-4].rstrip(), pymongo.DESCENDING))
+        if type(sort_arg) is dict:
+            if sort_arg['order'] == 'asc':
+                transformed_sort.append((sort_arg['field'], pymongo.ASCENDING))
+            else:
+                transformed_sort.append((sort_arg['field'], pymongo.DESCENDING))
         else:
-            transformed_sort.append((sort_arg, pymongo.ASCENDING))
+            if sort_arg.split(' ')[-1] == 'asc':
+                transformed_sort.append((sort_arg[0:-3].rstrip(), pymongo.ASCENDING))
+            elif sort_arg.split(' ')[-1] == 'desc':
+                transformed_sort.append((sort_arg[0:-4].rstrip(), pymongo.DESCENDING))
+            else:
+                transformed_sort.append((sort_arg, pymongo.ASCENDING))
     return transformed_sort

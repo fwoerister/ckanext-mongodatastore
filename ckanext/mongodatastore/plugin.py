@@ -32,15 +32,15 @@ class MongodatastorePlugin(plugins.SingletonPlugin):
     # IRoutes
     def before_map(self, m):
         m.connect('querystore.view', '/querystore/view_query',
-                  controller='ckanext.mongodatastore.controller.ui_controller:QueryStoreUIController',
+                  controller='ckanext.mongodatastore.controller.ui:QueryStoreUIController',
                   action='view_history_query')
 
         m.connect('querystore.datadump', '/querystore/dump_history_result_set',
-                  controller='ckanext.mongodatastore.controller.ui_controller:QueryStoreUIController',
+                  controller='ckanext.mongodatastore.controller.ui:QueryStoreUIController',
                   action='dump_history_result_set')
 
         m.connect('querystore.citationtext', '/querystore/render_citation_text',
-                  controller='ckanext.mongodatastore.controller.ui_controller:QueryStoreUIController',
+                  controller='ckanext.mongodatastore.controller.ui:QueryStoreUIController',
                   action='render_citation_text')
 
         return m
