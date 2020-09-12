@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block page %}
+
+  {% set map_config = h.get_map_config() %}
+  <div data-module="recline_view"
+       data-module-site_url="{{ h.dump_json(h.url('/', locale='default', qualified=true)) }}"
+       data-module-resource = "{{ h.dump_json(resource_json) }}";
+       data-module-resource-view = "{{ h.dump_json(resource_view_json) }}";
+       data-module-map_config= "{{ h.dump_json(map_config) }}";
+       data-module-dataproxy-url= "{{ h.get_dataproxy_url() }}"
+       >
+    <a id="cite-btn" class="btn btn-default">Cite Subset</a>
+    <div id="cite-response-panel" class="panel panel-info">
+        <div class="panel-heading">
+            Information
+        </div>
+        <div id="cite-response-text" class="panel-body">
+
+        </div>
+    </div>
+    <div id="datagrid">
+        <h4 class="loading-dialog">
+            <div class="loading-spinner"></div>
+            <div class="left">{{ _('Loading...') }}</div>
+        </h4>
+    </div>
+  </div>
+
+  {% resource 'ckanext-reclineview/main' %}
+{% endblock %}
+
+{% block styles %}{% endblock %}
+{% block custom_styles %}{% endblock %}
