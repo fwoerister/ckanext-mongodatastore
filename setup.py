@@ -81,7 +81,7 @@ setup(
     entry_points='''
         [ckan.plugins]
         mongodatastore=ckanext.mongodatastore.plugin:MongodatastorePlugin
-        reclinecitationview = ckanext.reclinecitationview.plugin:ReclineCitationViewBase
+        reclinecitationview = ckanext.reclinecitationview.plugin:ReclineCitationView
 
         [babel.extractors]
         ckan = ckan.lib.extract:extract_ckan
