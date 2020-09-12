@@ -145,7 +145,7 @@ this.ckan.module('recline_view', function (jQuery) {
         }
 
         view = new recline.View.Map($.extend(this._reclineMapViewOptions(dataset, this.options.map_config), {state:state}));
-      } else if(reclineView.view_type === "recline_view") {
+      } else if(reclineView.view_type === "reclinecitation_view") {
         view = this._newDataExplorer(dataset, this.options.map_config);
       } else {
         // default to Grid
@@ -159,7 +159,7 @@ this.ckan.module('recline_view', function (jQuery) {
 
       // recline_view automatically adds itself to the DOM, so we don't
       // need to bother with it.
-      if(reclineView.view_type !== 'recline_view') {
+      if(reclineView.view_type !== 'reclinecitation_view') {
         var newElements = jQuery('<div />');
         this._renderControls(newElements, controls, this.options.controlsClassName);
         newElements.append(view.el);
