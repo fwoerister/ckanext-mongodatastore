@@ -8,6 +8,7 @@ Base = declarative_base()
 class Query(Base):
     def __init__(self):
         pass
+
     __tablename__ = 'QUERY'
     id = Column(BIGINT, primary_key=True)
     resource_id = Column(TEXT)

@@ -4,7 +4,7 @@ from ckan.lib.base import abort
 from ckan.logic import get_action
 from ckanext.datastore.backend import DatastoreBackend
 
-from ckanext.mongodatastore.controller.mongodb_controller import VersionedDataStoreController
+from ckanext.mongodatastore.controller.mongodb import VersionedDataStoreController
 from ckanext.mongodatastore.query_preprocessor import transform_query_to_statement, transform_filter, transform_sort, \
     create_projection
 
@@ -19,11 +19,10 @@ def raise_exeption(ex):
 
 
 def log_parameter_not_used_warning(param_list):
-    pass
-#    for param in param_list:
-#        if param[1]:
-#            log.debug('The parameter {0} is set, but has no effect in this DataStore backend implementation!'
-#                      .format(param[0]))
+    for param in param_list:
+        if param[1]:
+            log.debug('The parameter {0} is set, but has no effect in this DataStore backend implementation!'
+                      .format(param[0]))
 
 
 class MongoDataStoreBackend(DatastoreBackend):

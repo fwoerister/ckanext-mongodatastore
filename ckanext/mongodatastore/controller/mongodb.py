@@ -1,4 +1,3 @@
-import json
 import logging
 from datetime import datetime
 
@@ -10,7 +9,7 @@ from pymongo import MongoClient
 from pymongo.collation import Collation
 from pymongo.errors import BulkWriteError
 
-from ckanext.mongodatastore.controller.querystore_controller import QueryStoreController
+from ckanext.mongodatastore.controller.querystore import QueryStoreController
 from ckanext.mongodatastore.exceptions import MongoDbControllerException, QueryNotFoundException
 from ckanext.mongodatastore.query_preprocessor import transform_query_to_statement, transform_filter, create_projection, \
     transform_sort
@@ -298,19 +297,19 @@ class VersionedDataStoreController:
             if q:
                 log.debug("query found")
                 col, meta, _ = self.__get_collections(q.resource_id)
-                stored_query = q.query
+                stored_query = {
+                        '_valid_to': {'$gt': q.timestamp},
+                        '_created': {'$lte': q.timestamp}
+                    }
                 result = dict()
 
                 result['pid'] = pid
 
                 if preview:
-                    stored_query['filter'].update({
-                        '_valid_to': {'$gt': q.timestamp},
-                        '_created': {'$lte': q.timestamp}
-                    })
-                    result['records'] = col.find(filter=stored_query.get('filter'),
-                                                 projection=stored_query.get('projection'),
-                                                 sort=stored_query.get('sort'),
+                    stored_query.update(q.query['filter'])
+                    result['records'] = col.find(filter=stored_query,
+                                                 projection=q.query.get('projection'),
+                                                 sort=q.query.get('sort'),
                                                  skip=offset,
                                                  limit=limit,
                                                  hint='_created_valid_to_index')

@@ -3,7 +3,7 @@ import logging
 
 from ckan import logic
 
-from ckanext.mongodatastore.controller.mongodb_controller import VersionedDataStoreController
+from ckanext.mongodatastore.controller.mongodb import VersionedDataStoreController
 
 log = logging.getLogger(__name__)
 
@@ -21,10 +21,7 @@ def issue_query_pid(context, data_dict):
     statement = data_dict.get('statement', {})
     q = data_dict.get('q', None)
     projection = data_dict.get('projection', default_projection)
-    sort = data_dict.get('sort', None)
-
-    if sort:
-        sort = sort.split(',')
+    sort = data_dict.get('sort', [])
 
     return cntr.issue_pid(resource_id, statement, projection, sort, q)
 
@@ -58,6 +55,7 @@ def querystore_resolve(context, data_dict):
     log.debug(result)
 
     return result
+
 
 @logic.side_effect_free
 def nonversioned_query(context, data_dict):
