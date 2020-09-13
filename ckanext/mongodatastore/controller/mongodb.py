@@ -15,8 +15,6 @@ from ckanext.mongodatastore.query_preprocessor import transform_query_to_stateme
     transform_sort
 from ckanext.mongodatastore.util import normalize_json, HASH_ALGORITHM, calculate_hash
 
-QUEUE_NAME = u'hash_queue'
-
 log = logging.getLogger(__name__)
 
 type_conversion_dict = {
@@ -31,16 +29,14 @@ type_conversion_dict = {
     'numeric': float,
     'bigint': long
 }
-CKAN_DATASTORE = config.get(u'ckan.datastore.database')
-CKAN_SITE_URL = config.get(u'ckan.site_url')
 
 
 def calculate_resultset_hash_job(pid):
     client = MongoClient(config.get(u'ckan.datastore.write_url'))
-    querystore = QueryStoreController(config.get(u'ckan.querystore.url'))
+    querystore = QueryStoreController(config.get(u'ckanext.mongodatastore.querystore_url'))
 
     q, metadata = querystore.retrieve_query(pid)
-    c = client.get_database(config.get(u'ckan.datastore.database')).get_collection(q.resource_id)
+    c = client.get_database(config.get(u'ckanext.mongodatastore.database_name')).get_collection(q.resource_id)
     stored_query = q.query
 
     log.info("fetch {0}".format(stored_query['filter']))
@@ -63,11 +59,14 @@ class VersionedDataStoreController:
     instance = None
 
     class __VersionedDataStoreController:
-        def __init__(self, client, datastore_db, querystore, rows_max):
+        def __init__(self, client, database_name, sharding_enabled, querystore, rows_max, queue_name, ckan_site_url):
             self.client = client
-            self.datastore = self.client.get_database(datastore_db)
+            self.datastore = self.client.get_database(database_name)
+            self.sharding_enabled = sharding_enabled
             self.querystore = querystore
             self.rows_max = rows_max
+            self.queue_name = queue_name
+            self.ckan_site_url = ckan_site_url
 
         @staticmethod
         def _execute_query(col, distinct, limit, offset, projected_schema, projection, sort, statement):
@@ -144,8 +143,9 @@ class VersionedDataStoreController:
                 self.datastore.create_collection(resource_id)
                 self.datastore.create_collection('{0}_meta'.format(resource_id))
 
-            self.client.admin.command('shardCollection', 'CKAN_Datastore.{0}'.format(resource_id),
-                                      key={'_id': 'hashed'})
+            if self.sharding_enabled:
+                self.client.admin.command('shardCollection', 'CKAN_Datastore.{0}'.format(resource_id),
+                                          key={'_id': 'hashed'})
 
             self.datastore.get_collection('{0}_meta'.format(resource_id)).insert_one(
                 {'record_id': primary_key, 'active': True})
@@ -160,7 +160,7 @@ class VersionedDataStoreController:
                              name='_valid_to_pk_index')
 
         def delete_resource(self, resource_id, filters={}):
-            col = self.client.get_database(CKAN_DATASTORE).get_collection(resource_id)
+            col = self.datastore.get_collection(resource_id)
             filters.update({'_latest': True})
             col.update_many(filters, {'$currentDate': {'_valid_to': True}, '$set': {'_latest': False}})
 
@@ -274,7 +274,7 @@ class VersionedDataStoreController:
                                                            None, HASH_ALGORITHM().name,
                                                            projected_schema)
 
-            toolkit.enqueue_job(calculate_resultset_hash_job, [query.id], queue=QUEUE_NAME)
+            toolkit.enqueue_job(calculate_resultset_hash_job, [query.id], queue=self.queue_name)
 
             result['metadata'] = meta_data
             result['query'] = query
@@ -298,9 +298,9 @@ class VersionedDataStoreController:
                 log.debug("query found")
                 col, meta, _ = self.__get_collections(q.resource_id)
                 stored_query = {
-                        '_valid_to': {'$gt': q.timestamp},
-                        '_created': {'$lte': q.timestamp}
-                    }
+                    '_valid_to': {'$gt': q.timestamp},
+                    '_created': {'$lte': q.timestamp}
+                }
                 result = dict()
 
                 result['pid'] = pid
@@ -414,27 +414,37 @@ class VersionedDataStoreController:
     @classmethod
     def get_instance(cls):
         if VersionedDataStoreController.instance is None:
-            log.info(config.get(u'ckan.datastore.write_url'))
-            client = MongoClient(config.get(u'ckan.datastore.write_url'))
-            client.admin.command('enableSharding', 'CKAN_Datastore')
 
-            querystore = QueryStoreController(config.get(u'ckan.querystore.url'))
-            rows_max = config.get(u'ckan.datastore.search.rows_max', 20)
+            mongodb_url = config.get(u'ckanext.mongodatastore.mongodb_url')
+            querystore_url = config.get(u'ckanext.mongodatastore.querystore_url')
+            sharding_enabled = bool(config.get(u'ckanext.mongodatastore.sharding_enabled'))
+            database_name = config.get(u'ckanext.mongodatastore.database_name')
+            rows_max = config.get(u'ckan.mongodatastore.max_result_size', 500)
+            ckan_site_url = config.get(u'ckan.site_url')
+
+            queue_name = config.get(u'ckan.mongodatastore.queue_name', 'hash_queue')
+
+            client = MongoClient(mongodb_url)
+            querystore = QueryStoreController(querystore_url)
+
+            if sharding_enabled:
+                client.admin.command('enableSharding', database_name)
+
             cls.instance = VersionedDataStoreController.__VersionedDataStoreController(client,
-                                                                                       config.get(
-                                                                                           u'ckan.datastore.database'),
+                                                                                       database_name,
+                                                                                       sharding_enabled,
                                                                                        querystore,
-                                                                                       rows_max)
+                                                                                       rows_max,
+                                                                                       queue_name,
+                                                                                       ckan_site_url)
 
         return VersionedDataStoreController.instance
 
     @classmethod
     def reload_config(cls, cfg):
-        client = MongoClient(cfg.get(u'ckan.datastore.write_url'))
-        querystore = QueryStoreController(cfg.get(u'ckan.querystore.url'))
-        rows_max = config.get(u'ckan.datastore.search.rows_max', 100)
-        VersionedDataStoreController.instance = VersionedDataStoreController.__VersionedDataStoreController(client,
-                                                                                                            config.get(
-                                                                                                                u'ckan.datastore.database'),
-                                                                                                            querystore,
-                                                                                                            rows_max)
+        cls.instance.client.close()
+        if cls.instance.querystore.session:
+            cls.instance.querystore.session.close()
+
+        cls.instance = None
+        cls.get_instance()

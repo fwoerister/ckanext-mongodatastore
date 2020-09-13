@@ -26,7 +26,7 @@ def create_schema(ctx, config):
 
     log.debug('start creating schema....')
 
-    querystore_url = ckan_config[u'ckan.querystore.url']
+    querystore_url = ckan_config[u'ckanext.mongodatastore.querystore_url']
     engine = create_engine(querystore_url, echo=True)
 
     Base.metadata.create_all(engine)
