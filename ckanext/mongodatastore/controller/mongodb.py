@@ -290,9 +290,9 @@ class VersionedDataStoreController:
             result['fields'] = fields
             return query.id
 
-        def execute_stored_query(self, pid, offset, limit, preview=False):
+        def execute_stored_query(self, internal_id, offset, limit, preview=False):
             log.debug("execute_stored_query")
-            q, metadata = self.querystore.retrieve_query(pid)
+            q, metadata = self.querystore.retrieve_query(internal_id)
 
             if q:
                 log.debug("query found")
@@ -302,8 +302,6 @@ class VersionedDataStoreController:
                     '_created': {'$lte': q.timestamp}
                 }
                 result = dict()
-
-                result['pid'] = pid
 
                 if preview:
                     stored_query.update(q.query['filter'])
@@ -344,7 +342,7 @@ class VersionedDataStoreController:
                 return result
             else:
                 log.debug("query not found")
-                raise QueryNotFoundException('No query with PID {0} found'.format(pid))
+                raise QueryNotFoundException('No query with PID {0} found'.format(internal_id))
 
         def query_current_state(self, resource_id, statement, projection, sort, offset, limit, distinct, include_total,
                                 projected_schema):

@@ -12,7 +12,7 @@ from ckanext.mongodatastore.model import Query, RecordField, MetaDataField
 from ckanext.mongodatastore.util import calculate_hash
 
 LANDING_PAGE_URL_TEMPLATE = '{}/querystore/view_query?id={}'
-API_URL_TEMPLATE = '{}/api/3/action/querystore_resolve?pid={}'
+API_URL_TEMPLATE = '{}/api/3/action/querystore_resolve?id={}'
 STREAM_URL_TEMPLATE = '{}/datadump/querystore_resolve/{}'
 
 CKAN_SITE_URL = config.get(u'ckan.site_url')
@@ -28,10 +28,10 @@ class QueryStoreController:
         Session = sessionmaker(bind=self.engine)
         self.session = Session()
 
-    def _create_handle_entry(self, pid):
-        landing_page = LANDING_PAGE_URL_TEMPLATE.format(CKAN_SITE_URL, str(pid))
-        api_url = API_URL_TEMPLATE.format(CKAN_SITE_URL, str(pid))
-        stream_url = STREAM_URL_TEMPLATE.format(CKAN_SITE_URL, str(pid))
+    def _create_handle_entry(self, internal_id):
+        landing_page = LANDING_PAGE_URL_TEMPLATE.format(CKAN_SITE_URL, str(internal_id))
+        api_url = API_URL_TEMPLATE.format(CKAN_SITE_URL, str(internal_id))
+        stream_url = STREAM_URL_TEMPLATE.format(CKAN_SITE_URL, str(internal_id))
 
         handle = self.handle_client.generate_and_register_handle('TEST', landing_page)
         self.handle_client.modify_handle_value(handle, ttl=None, add_if_not_exist=True,
@@ -107,10 +107,10 @@ class QueryStoreController:
         self.session.flush()
         return q, metadata
 
-    def update_hash(self, pid, result_hash):
-        log.info('try to update pid %s with hash %s', pid, result_hash)
+    def update_hash(self, internal_id, result_hash):
+        log.info('try to update query %s with hash %s', internal_id, result_hash)
 
-        staged_query = self.session.query(Query).filter(Query.id == pid).first()
+        staged_query = self.session.query(Query).filter(Query.id == internal_id).first()
         q = self.session.query(Query).filter(Query.query_hash == staged_query.query_hash,
                                              Query.result_set_hash == result_hash,
                                              Query.result_set_hash is not None,
@@ -127,7 +127,7 @@ class QueryStoreController:
             self.session.flush()
             return q, meta_data
         else:
-            staged_query.handle_pid = self._create_handle_entry(pid)
+            staged_query.handle_pid = self._create_handle_entry(internal_id)
             staged_query.result_set_hash = result_hash
             self.session.merge(staged_query)
             self.session.commit()
@@ -143,8 +143,8 @@ class QueryStoreController:
             self.session.flush()
             return staged_query, metadata
 
-    def retrieve_query(self, pid):
-        result = self.session.query(Query).filter(Query.id == pid).first()
+    def retrieve_query(self, internal_id):
+        result = self.session.query(Query).filter(Query.id == internal_id).first()
 
         if not result:
             raise QueryNotFoundException()

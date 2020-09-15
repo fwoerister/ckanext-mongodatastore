@@ -94,7 +94,7 @@ class QueryStoreUIController(BaseController):
         id = h.get_param_int('id')
         result = None
         try:
-            result = get_action('querystore_resolve')(None, {'pid': id,
+            result = get_action('querystore_resolve')(None, {'id': id,
                                                              'skip': 0,
                                                              'limit': 100})
         except QueryNotFoundException as ex:

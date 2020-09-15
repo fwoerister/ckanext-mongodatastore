@@ -30,7 +30,7 @@ def issue_query_pid(context, data_dict):
 def querystore_resolve(context, data_dict):
     cntr = VersionedDataStoreController.get_instance()
 
-    pid = int(data_dict.get('pid'))
+    internal_id = int(data_dict.get('id'))
     skip = data_dict.get('offset', 0)
     limit = data_dict.get('limit', 0)
     include_data = bool(data_dict.get('include_data', 'True'))
@@ -42,9 +42,9 @@ def querystore_resolve(context, data_dict):
 
     records_format = data_dict.get('records_format', 'objects')
 
-    log.debug('querystore_resolve parameters {0}'.format([pid, skip, limit, records_format, include_data]))
+    log.debug('querystore_resolve parameters {0}'.format([internal_id, skip, limit, records_format, include_data]))
 
-    result = cntr.execute_stored_query(pid, offset=skip, limit=limit, preview=include_data)
+    result = cntr.execute_stored_query(internal_id, offset=skip, limit=limit, preview=include_data)
 
     if 'records' in result.keys():
         result['records_preview'] = list(result.get('records'))
