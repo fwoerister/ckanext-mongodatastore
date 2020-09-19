@@ -13,14 +13,9 @@ def issue_query_pid(context, data_dict):
 
     resource_id = data_dict.get('resource_id', '')
 
-    default_projection = {}
-
-    for field in cntr.resource_fields(resource_id)['schema']:
-        default_projection[field['id']] = 1
-
     statement = data_dict.get('statement', {})
     q = data_dict.get('q', None)
-    projection = data_dict.get('projection', default_projection)
+    projection = data_dict.get('projection', [])
     sort = data_dict.get('sort', [])
 
     return cntr.issue_pid(resource_id, statement, projection, sort, q)
@@ -44,15 +39,13 @@ def querystore_resolve(context, data_dict):
 
     log.debug('querystore_resolve parameters {0}'.format([internal_id, skip, limit, records_format, include_data]))
 
-    result = cntr.execute_stored_query(internal_id, offset=skip, limit=limit, preview=include_data)
+    result = cntr.execute_stored_query(internal_id, offset=skip, limit=limit, include_data=include_data)
 
     if 'records' in result.keys():
         result['records_preview'] = list(result.get('records'))
         result.pop('records')
     else:
         result['records_preview'] = None
-
-    log.debug(result)
 
     return result
 

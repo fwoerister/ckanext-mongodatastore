@@ -11,9 +11,9 @@ from pymongo.errors import BulkWriteError
 
 from ckanext.mongodatastore.controller.querystore import QueryStoreController
 from ckanext.mongodatastore.exceptions import MongoDbControllerException, QueryNotFoundException
-from ckanext.mongodatastore.query_preprocessor import transform_query_to_statement, transform_filter, create_projection, \
+from ckanext.mongodatastore.preprocessor import transform_query_to_statement, transform_filter, transform_projection, \
     transform_sort
-from ckanext.mongodatastore.util import normalize_json, HASH_ALGORITHM, calculate_hash
+from ckanext.mongodatastore.util import HASH_ALGORITHM, calculate_hash
 
 log = logging.getLogger(__name__)
 
@@ -69,34 +69,6 @@ class VersionedDataStoreController:
             self.ckan_site_url = ckan_site_url
 
         @staticmethod
-        def _execute_query(col, distinct, limit, offset, projected_schema, projection, sort, statement):
-            if distinct:
-                return [{projected_schema[0]['id']: val} for val in
-                        col.distinct(projected_schema[0]['id'])]
-            else:
-                curs = col.find(filter=statement, projection=projection, skip=offset,
-                                limit=limit)
-
-                log.debug('query')
-                log.debug(statement)
-                log.debug(projection)
-                log.debug(offset)
-                log.debug(limit)
-
-                if sort:
-                    return curs.sort(sort)
-                return curs
-
-        @staticmethod
-        def _prepare_projection(projection):
-            if projection and 1 in projection.values():
-                projection.update({'_id': 0})
-            else:
-                projection = {'_id': 0, '_created': 0, '_valid_to': 0, '_latest': 0, '_hash': 0}
-
-            return normalize_json(projection)
-
-        @staticmethod
         def __apply_override_type(records, fields):
             field_type = dict()
 
@@ -118,18 +90,41 @@ class VersionedDataStoreController:
                             except ValueError as e:
                                 print(e)
 
-        def __get_collections(self, resource_id):
-            col = self.datastore.get_collection(resource_id)
-            meta = self.datastore.get_collection('{0}_meta'.format(resource_id))
-            fields = self.datastore.get_collection('{0}_fields'.format(resource_id))
-            return col, meta, fields
-
         def __update_required(self, resource_id, new_record, id_key):
-            col, meta, _ = self.__get_collections(resource_id)
+            col = self._get_resource_collection(resource_id)
 
             result = col.find_one(
                 {'_latest': True, '_hash': new_record['_hash'], id_key: new_record[id_key]}, {'_hash': 1})
             return result is None
+
+        def _execute_query(self, resource_id, statement, projection, sort, offset, limit, include_total):
+            result = dict()
+            col = self._get_resource_collection(resource_id)
+
+            cursor = col.find(statement, projection=projection, skip=offset,
+                              limit=limit, sort=sort)
+
+            result['records'] = cursor
+
+            if include_total:
+                result.update({'total': col.count_documents(statement)})
+
+            return result
+
+        def _execute_distinct_query(self, resource_id, field, offset=0, limit=None):
+            col = self._get_resource_collection(resource_id)
+            return {'records': list(col.distinct(key=field))[offset:limit]}
+
+        def _get_resource_collection(self, resource_id):
+            return self.datastore.get_collection(resource_id)
+
+        def _get_resource_metadata(self, resource_id):
+            collection_name = '{0}_meta'.format(resource_id)
+            return self.datastore.get_collection(collection_name)
+
+        def _get_resource_fields(self, resource_id):
+            collection_name = '{0}_fields'.format(resource_id)
+            return self.datastore.get_collection(collection_name)
 
         def get_all_ids(self):
             return [name for name in self.datastore.list_collection_names() if
@@ -160,12 +155,14 @@ class VersionedDataStoreController:
                              name='_valid_to_pk_index')
 
         def delete_resource(self, resource_id, filters={}):
-            col = self.datastore.get_collection(resource_id)
+            col = self._get_resource_collection(resource_id)
             filters.update({'_latest': True})
             col.update_many(filters, {'$currentDate': {'_valid_to': True}, '$set': {'_latest': False}})
 
         def update_schema(self, resource_id, field_definitions, indexes, primary_key):
-            collection, _, fields = self.__get_collections(resource_id)
+            collection = self._get_resource_collection(resource_id)
+            fields = self._get_resource_fields(resource_id)
+
             fields.delete_many({})
             fields.insert_many(field_definitions)
 
@@ -187,7 +184,10 @@ class VersionedDataStoreController:
                 field.pop('_id')
 
         def insert(self, resource_id, records, dry_run=False):
-            col, meta, fields = self.__get_collections(resource_id)
+            col = self._get_resource_collection(resource_id)
+            meta = self._get_resource_metadata(resource_id)
+            fields = self._get_resource_fields(resource_id)
+
             record_id_key = meta.find_one()['record_id']
 
             self.__apply_override_type(records, fields)
@@ -213,7 +213,10 @@ class VersionedDataStoreController:
                     log.error(bwe.details)
 
         def upsert(self, resource_id, records, dry_run=False):
-            col, meta, fields = self.__get_collections(resource_id)
+            col = self._get_resource_collection(resource_id)
+            meta = self._get_resource_metadata(resource_id)
+            fields = self._get_resource_fields(resource_id)
+
             record_id_key = meta.find_one()['record_id']
 
             self.__apply_override_type(records, fields)
@@ -246,8 +249,7 @@ class VersionedDataStoreController:
         def issue_pid(self, resource_id, statement, projection, sort, q):
             now = datetime.now(pytz.UTC)
 
-            col, meta, fields = self.__get_collections(resource_id)
-            result = dict()
+            fields = self._get_resource_fields(resource_id)
             schema = fields.find()
 
             if q:
@@ -255,16 +257,11 @@ class VersionedDataStoreController:
             else:
                 statement = transform_filter(statement, schema)
 
-            statement = normalize_json(statement)
+            projection = transform_projection(projection, fields.find())
 
-            projection = create_projection(fields.find(), projection)
+            sort = transform_sort(sort)
 
-            if sort:
-                sort = transform_sort(sort) + [('_id', 1)]
-            else:
-                sort = [('_id', 1)]
-
-            projected_schema = [field for field in fields.find() if field[u'id'] in projection.keys()]
+            fields_metadata = [field for field in fields.find() if field[u'id'] in projection.keys()]
 
             query, meta_data = self.querystore.store_query(resource_id,
                                                            {'filter': statement,
@@ -272,57 +269,36 @@ class VersionedDataStoreController:
                                                             'sort': sort},
                                                            str(now),
                                                            None, HASH_ALGORITHM().name,
-                                                           projected_schema)
+                                                           fields_metadata)
 
             toolkit.enqueue_job(calculate_resultset_hash_job, [query.id], queue=self.queue_name)
 
-            result['metadata'] = meta_data
-            result['query'] = query
-            fields = []
-            for field in query.record_fields:
-                fields.append({
-                    'id': field.name,
-                    'type': field.datatype,
-                    'info': {
-                        'description': field.description
-                    }
-                })
-            result['fields'] = fields
             return query.id
 
-        def execute_stored_query(self, internal_id, offset, limit, preview=False):
+        def execute_stored_query(self, internal_id, offset, limit, include_data=False):
             log.debug("execute_stored_query")
             q, metadata = self.querystore.retrieve_query(internal_id)
 
             if q:
                 log.debug("query found")
-                col, meta, _ = self.__get_collections(q.resource_id)
+                col = self._get_resource_collection(q.resource_id)
+
                 stored_query = {
                     '_valid_to': {'$gt': q.timestamp},
                     '_created': {'$lte': q.timestamp}
                 }
                 result = dict()
 
-                if preview:
+                if include_data:
                     stored_query.update(q.query['filter'])
-                    result['records'] = col.find(filter=stored_query,
-                                                 projection=q.query.get('projection'),
-                                                 sort=q.query.get('sort'),
-                                                 skip=offset,
-                                                 limit=limit,
-                                                 hint='_created_valid_to_index')
+                    result['records'] = list(col.find(filter=stored_query,
+                                                      projection=q.query.get('projection'),
+                                                      sort=q.query.get('sort'),
+                                                      skip=offset,
+                                                      limit=limit,
+                                                      hint='_created_valid_to_index'))
 
-                query = {
-                    'id': q.id,
-                    'resource_id': q.resource_id,
-                    'query': q.query,
-                    'query_hash': q.query_hash,
-                    'hash_algorithm': q.hash_algorithm,
-                    'result_set_hash': q.result_set_hash,
-                    'timestamp': str(q.timestamp),
-                    'handle_pid': q.handle_pid
-                }
-                result['query'] = query
+                result['query'] = q.as_dict()
 
                 fields = []
                 field_names = []
@@ -344,70 +320,60 @@ class VersionedDataStoreController:
                 log.debug("query not found")
                 raise QueryNotFoundException('No query with PID {0} found'.format(internal_id))
 
-        def query_current_state(self, resource_id, statement, projection, sort, offset, limit, distinct, include_total,
-                                projected_schema):
-            col, _, _ = self.__get_collections(resource_id)
-            result = dict()
+        def query_by_fulltext(self, resource_id, query, projection, sort, offset, limit, include_total,
+                              none_versioned=False):
+            schema = self.resource_fields(resource_id)['schema']
 
-            statement['_latest'] = True
+            transformed_statement = transform_query_to_statement(query, schema)
+            if not none_versioned:
+                transformed_statement['_latest'] = True
 
-            if sort:
-                sort = sort + [('_id', 1)]
+            transformed_projection = transform_projection(projection, schema)
+
+            transformed_sort = transform_sort(sort)
+
+            result = self._execute_query(resource_id,
+                                         transformed_statement,
+                                         transformed_projection,
+                                         transformed_sort,
+                                         offset, limit, include_total)
+
+            result['records'] = list(result['records'])
+
+            return result
+
+        def query_by_filters(self, resource_id, filters, projection, sort, offset, limit, include_total, distinct,
+                             none_versioned=False):
+            schema = self.resource_fields(resource_id)['schema']
+
+            transformed_statement = transform_filter(filters, schema)
+            if not none_versioned:
+                transformed_statement['_latest'] = True
+
+            transformed_projection = transform_projection(projection, schema)
+
+            transformed_sort = transform_sort(sort)
+
+            if distinct:
+                result = self._execute_distinct_query(resource_id, transformed_projection.keys()[0], offset, limit)
             else:
-                sort = [('_id', 1)]
-
-            if include_total:
-                result['total'] = col.count_documents(statement)
-
-            projection = self._prepare_projection(projection)
-
-            res = self._execute_query(col, distinct, limit, offset, projected_schema, projection, sort,
-                                      statement)
-
-            result['records'] = list(res)
-
-            if type(res) != list:
-                res.close()
+                result = self._execute_query(resource_id,
+                                             transformed_statement,
+                                             transformed_projection,
+                                             transformed_sort,
+                                             offset, limit, include_total)
+                result['records'] = list(result['records'])
 
             return result
 
         def resource_fields(self, resource_id):
-            col, meta, fields = self.__get_collections(resource_id)
+            meta = self._get_resource_metadata(resource_id)
+            fields = self._get_resource_fields(resource_id)
 
             meta_entry = meta.find_one({}, {"_id": 0})
             schema = fields.find({}, {'_id': 0})
 
             return {'meta': meta_entry, 'schema': list(schema)}
-
-        def nv_query(self, resource_id, statement, q, projection, sort, skip, limit):
-            col, _, fields = self.__get_collections(resource_id)
-            result = dict()
-
-            schema = fields.find({}, {'_id': 0})
-
-            if q:
-                statement = transform_query_to_statement(q, schema)
-            else:
-                statement = transform_filter(statement, schema)
-
-            if sort:
-                sort = sort + [('_id', 1)]
-            else:
-                sort = [('_id', 1)]
-
-            result['total'] = col.count_documents(statement)
-
-            projection = self._prepare_projection(projection)
-
-            res = self._execute_query(col, False, limit, skip, None, projection, sort,
-                                      statement)
-
-            result['records'] = list(res)
-
-            if type(res) != list:
-                res.close()
-
-            return result
 
     @classmethod
     def get_instance(cls):

@@ -5,8 +5,6 @@ from ckan.logic import get_action
 from ckanext.datastore.backend import DatastoreBackend
 
 from ckanext.mongodatastore.controller.mongodb import VersionedDataStoreController
-from ckanext.mongodatastore.query_preprocessor import transform_query_to_statement, transform_filter, transform_sort, \
-    create_projection
 
 log = logging.getLogger(__name__)
 
@@ -115,9 +113,6 @@ class MongoDataStoreBackend(DatastoreBackend):
         total_estimation_threshold = data_dict.get(u'total_estimation_threshold', None)
         records_format = data_dict.get(u'records_format', u'objects')
 
-        log.debug('search {}'.format(filters))
-        log.debug('search {}'.format(query))
-
         if limit < MIN_LIMIT:
             limit = MIN_LIMIT
 
@@ -128,30 +123,16 @@ class MongoDataStoreBackend(DatastoreBackend):
                                         (u'total_estimation_threshold', total_estimation_threshold)])
 
         if records_format in [u'tsv', u'lists']:
-            abort(501, u"The current version of MongoDatastore only supports CSV exports!")
-
-        schema = self.resource_fields(data_dict[u'resource_id'])[u'schema']
-
-        if type(fields) is not list:
-            fields = fields.split(',')
-        projection = create_projection(schema, fields)
-
-        projected_schema = [field for field in schema if field[u'id'] in projection.keys()]
+            abort(501, u"The current version of MongoDatastore only supports CSV queries!")
 
         if query:
-            statement = transform_query_to_statement(query, schema)
+            result = self.mongo_cntr.query_by_fulltext(resource_id, query, fields, sort, offset, limit, include_total)
         else:
-            statement = transform_filter(filters, schema)
-
-        if sort:
-            sort = transform_sort(sort.split(','))
-
-        result = self.mongo_cntr.query_current_state(resource_id, statement, projection, sort, offset, limit, distinct,
-                                                     include_total, projected_schema)
+            result = self.mongo_cntr.query_by_filters(resource_id, filters, fields, sort, offset, limit, include_total,
+                                                      distinct)
 
         result['offset'] = offset
         result['limit'] = limit
-        result['fields'] = schema
 
         return result
 

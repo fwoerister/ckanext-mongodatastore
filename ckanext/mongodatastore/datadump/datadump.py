@@ -28,7 +28,7 @@ def dump_dataset(pid):
 
     def to_csv():
         index = 0
-        result = datastore_cntr.execute_stored_query(pid, index, CHUNK_SIZE, preview=True)
+        result = datastore_cntr.execute_stored_query(pid, index, CHUNK_SIZE, include_data=True)
         records = list(result['records'])
 
         fields = [field['id'] for field in result['fields']]
@@ -40,12 +40,12 @@ def dump_dataset(pid):
                 yield csv_delimiter.join(map(lambda f: convert_csv_field(record[f]), fields)) + '\n'
             result['records'].close()
             index = index + CHUNK_SIZE
-            result = datastore_cntr.execute_stored_query(pid, index, CHUNK_SIZE, preview=True)
+            result = datastore_cntr.execute_stored_query(pid, index, CHUNK_SIZE, include_data=True)
             records = list(result['records'])
 
     def to_json():
         index = 0
-        result = datastore_cntr.execute_stored_query(pid, index, CHUNK_SIZE, preview=True)
+        result = datastore_cntr.execute_stored_query(pid, index, CHUNK_SIZE, include_data=True)
         records = list(result['records'])
 
         yield '[\n'
@@ -54,13 +54,13 @@ def dump_dataset(pid):
                 yield json.dumps(record) + ', \n'
             result['records'].close()
             index = index + CHUNK_SIZE
-            result = datastore_cntr.execute_stored_query(pid, index, CHUNK_SIZE, preview=True)
+            result = datastore_cntr.execute_stored_query(pid, index, CHUNK_SIZE, include_data=True)
             records = list(result['records'])
         yield ']'
 
     def to_xml():
         index = 0
-        result = datastore_cntr.execute_stored_query(pid, index, CHUNK_SIZE, preview=True)
+        result = datastore_cntr.execute_stored_query(pid, index, CHUNK_SIZE, include_data=True)
         records = list(result['records'])
         yield '<records>'
         while len(records) != 0:
@@ -68,7 +68,7 @@ def dump_dataset(pid):
                 yield xmltodict.unparse({'record': record}, full_document=False) + '\n'
             result['records'].close()
             index = index + CHUNK_SIZE
-            result = datastore_cntr.execute_stored_query(pid, index, CHUNK_SIZE, preview=True)
+            result = datastore_cntr.execute_stored_query(pid, index, CHUNK_SIZE, include_data=True)
             records = list(result['records'])
         yield '</records>'
 
