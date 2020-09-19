@@ -1,13 +1,23 @@
 import pymongo
 
+from ckanext.mongodatastore.util import normalize_json
 
-def create_projection(schema, projection):
+
+def transform_projection(fields, schema):
     new_projection = {}
+
+    if fields is None:
+        fields = []
+
+    if type(fields) is not list:
+        fields = fields.split(',')
+
     for field in schema:
-        if len(projection) == 0 or field['id'] in projection.keys():
+        if len(fields) == 0 or field['id'] in fields:
             new_projection[field['id']] = 1
     new_projection['_id'] = 0
-    return new_projection
+
+    return normalize_json(new_projection)
 
 
 def transform_query_to_statement(query, schema):
@@ -20,7 +30,7 @@ def transform_query_to_statement(query, schema):
     for field in schema:
         if field['type'] == 'text':
             new_filter['$or'].append({field['id']: {'$regex': query}})
-    return new_filter
+    return normalize_json(new_filter)
 
 
 def transform_filter(filters, schema):
@@ -70,10 +80,13 @@ def transform_filter(filters, schema):
                     new_filter[key] = filters[key]
             else:
                 new_filter[key] = filters[key]
-    return new_filter
+    return normalize_json(new_filter)
 
 
 def transform_sort(sort):
+    if sort is None:
+        sort = []
+
     if type(sort) is not list:
         sort = sort.split(',')
 
@@ -91,4 +104,6 @@ def transform_sort(sort):
                 transformed_sort.append((sort_arg[0:-4].rstrip(), pymongo.DESCENDING))
             else:
                 transformed_sort.append((sort_arg, pymongo.ASCENDING))
+
+    transformed_sort.append(('_id', pymongo.ASCENDING))
     return transformed_sort

@@ -9,6 +9,19 @@ class Query(Base):
     def __init__(self):
         pass
 
+    def as_dict(self):
+        return {
+            'id': self.id,
+            'resource_id': self.resource_id,
+            'handle_pid': self.handle_pid,
+            'timestamp': str(self.timestamp),
+            'query': self.query,
+            'query_hash': self.query_hash,
+            'result_set_hash': self.result_set_hash,
+            'hash_algorithm': self.hash_algorithm,
+            'record_field_hash': self.record_field_hash
+        }
+
     __tablename__ = 'QUERY'
     id = Column(BIGINT, primary_key=True)
     resource_id = Column(TEXT)

@@ -41,11 +41,11 @@ class QueryStoreController:
         return handle
 
     def store_query(self, resource_id, query, timestamp, result_hash,
-                    hash_algorithm, projected_schema):
+                    hash_algorithm, fields_metadata):
 
         query_hash = calculate_hash(query)
-        if projected_schema:
-            record_field_hash = calculate_hash(projected_schema)
+        if fields_metadata:
+            record_field_hash = calculate_hash(fields_metadata)
         else:
             record_field_hash = None
 
@@ -82,9 +82,9 @@ class QueryStoreController:
             self.session.add(meta_entry)
         self.session.commit()
 
-        if projected_schema:
+        if fields_metadata:
             order = 0
-            for field in projected_schema:
+            for field in fields_metadata:
                 r = RecordField()
                 r.name = field['id']
                 r.datatype = field['type']
