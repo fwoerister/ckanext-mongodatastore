@@ -11,7 +11,7 @@ from pymongo.errors import BulkWriteError
 
 from ckanext.mongodatastore.controller.querystore import QueryStoreController
 from ckanext.mongodatastore.exceptions import MongoDbControllerException, QueryNotFoundException
-from ckanext.mongodatastore.preprocessor import transform_query_to_statement, transform_filter, transform_projection, \
+from ckanext.mongodatastore.preprocessor import transform_query_to_statement, transform_filter_to_statement, transform_projection, \
     transform_sort
 from ckanext.mongodatastore.util import HASH_ALGORITHM, calculate_hash
 
@@ -255,7 +255,7 @@ class VersionedDataStoreController:
             if q:
                 statement = transform_query_to_statement(q, schema)
             else:
-                statement = transform_filter(statement, schema)
+                statement = transform_filter_to_statement(statement, schema)
 
             projection = transform_projection(projection, fields.find())
 
@@ -346,7 +346,7 @@ class VersionedDataStoreController:
                              none_versioned=False):
             schema = self.resource_fields(resource_id)['schema']
 
-            transformed_statement = transform_filter(filters, schema)
+            transformed_statement = transform_filter_to_statement(filters, schema)
             if not none_versioned:
                 transformed_statement['_latest'] = True
 

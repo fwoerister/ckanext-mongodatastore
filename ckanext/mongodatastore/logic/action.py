@@ -4,6 +4,7 @@ import logging
 from ckan import logic
 
 from ckanext.mongodatastore.controller.mongodb import VersionedDataStoreController
+from ckanext.mongodatastore.datastore_backend import MIN_LIMIT, MAX_LIMIT
 
 log = logging.getLogger(__name__)
 
@@ -54,33 +55,27 @@ def querystore_resolve(context, data_dict):
 def nonversioned_query(context, data_dict):
     cntr = VersionedDataStoreController.get_instance()
 
-    default_projection = {}
-
     resource_id = data_dict.get('resource_id')
     q = data_dict.get('q', None)
-    projection = data_dict.get('projection', default_projection)
+    projection = data_dict.get('fields', [])
     sort = data_dict.get('sort', None)
     skip = data_dict.get('offset', 0)
     limit = data_dict.get('limit', 0)
     statement = json.loads(data_dict.get('filters', '{}'))
 
-    log.debug('nv {}'.format(statement))
-    log.debug('nv {}'.format(q))
+    if limit < MIN_LIMIT:
+        limit = MIN_LIMIT
 
-    if sort:
-        sort = sort.split(',')
+    if limit > MAX_LIMIT:
+        limit = MAX_LIMIT
 
-    if skip:
-        skip = int(skip)
-    if limit:
-        limit = int(limit)
-
-    result = cntr.nv_query(resource_id, statement, q, projection, sort, skip, limit)
-
-    if 'records' in result.keys():
-        result['records_preview'] = list(result.get('records'))
-        result.pop('records')
+    if q:
+        result = cntr.query_by_fulltext(resource_id, q, projection, sort, skip, limit, True, none_versioned=True)
     else:
-        result['records_preview'] = None
+        result = cntr.query_by_filters(resource_id, statement, projection, sort, skip, limit, True, False,
+                                       none_versioned=True)
+
+    result['offset'] = skip
+    result['limit'] = limit
 
     return result
