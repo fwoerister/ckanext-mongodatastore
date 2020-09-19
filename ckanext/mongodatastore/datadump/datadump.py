@@ -38,7 +38,6 @@ def dump_dataset(pid):
         while len(records) != 0:
             for record in records:
                 yield csv_delimiter.join(map(lambda f: convert_csv_field(record[f]), fields)) + '\n'
-            result['records'].close()
             index = index + CHUNK_SIZE
             result = datastore_cntr.execute_stored_query(pid, index, CHUNK_SIZE, include_data=True)
             records = list(result['records'])
@@ -52,7 +51,6 @@ def dump_dataset(pid):
         while len(records) != 0:
             for record in records:
                 yield json.dumps(record) + ', \n'
-            result['records'].close()
             index = index + CHUNK_SIZE
             result = datastore_cntr.execute_stored_query(pid, index, CHUNK_SIZE, include_data=True)
             records = list(result['records'])
@@ -66,7 +64,6 @@ def dump_dataset(pid):
         while len(records) != 0:
             for record in records:
                 yield xmltodict.unparse({'record': record}, full_document=False) + '\n'
-            result['records'].close()
             index = index + CHUNK_SIZE
             result = datastore_cntr.execute_stored_query(pid, index, CHUNK_SIZE, include_data=True)
             records = list(result['records'])

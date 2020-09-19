@@ -1,0 +1,10 @@
+<p>
+    {{ m.citation_title }}
+    {% if m.citation_year %}
+        ({{ m.citation_year }}),
+    {% endif %} <br/>
+
+    {{ m.citation_author }}<br/>
+    Filename: {{ m.citation_filename }}; Maintained by: {{ m.citation_maintainer }}<br/>
+    Handle.Net PID: <a href=""><img src="https://img.shields.io/badge/handle.net-{{ h.urlencode(q.handle_pid) }}-red"/></a>
+</p>
