@@ -3,23 +3,6 @@ import pymongo
 from ckanext.mongodatastore.util import normalize_json
 
 
-def transform_projection(fields, schema):
-    new_projection = {}
-
-    if fields is None:
-        fields = []
-
-    if type(fields) is not list:
-        fields = fields.split(',')
-
-    for field in schema:
-        if len(fields) == 0 or field['id'] in fields:
-            new_projection[field['id']] = 1
-    new_projection['_id'] = 0
-
-    return normalize_json(new_projection)
-
-
 def transform_query_to_statement(query, schema):
     new_filter = {'$or': []}
     if type(query) == dict:
@@ -33,7 +16,7 @@ def transform_query_to_statement(query, schema):
     return normalize_json(new_filter)
 
 
-def transform_filter(filters, schema):
+def transform_filter_to_statement(filters, schema):
     new_filter = {}
 
     schema_dict = {}
@@ -81,6 +64,23 @@ def transform_filter(filters, schema):
             else:
                 new_filter[key] = filters[key]
     return normalize_json(new_filter)
+
+
+def transform_projection(fields, schema):
+    new_projection = {}
+
+    if fields is None:
+        fields = []
+
+    if type(fields) is not list:
+        fields = fields.split(',')
+
+    for field in schema:
+        if len(fields) == 0 or field['id'] in fields:
+            new_projection[field['id']] = 1
+    new_projection['_id'] = 0
+
+    return normalize_json(new_projection)
 
 
 def transform_sort(sort):
