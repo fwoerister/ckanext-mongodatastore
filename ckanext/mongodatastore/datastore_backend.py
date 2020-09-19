@@ -134,6 +134,8 @@ class MongoDataStoreBackend(DatastoreBackend):
         result['offset'] = offset
         result['limit'] = limit
 
+        result['fields'] = self.resource_fields(resource_id)['schema']
+
         return result
 
     def search_sql(self, context, data_dict):
