@@ -4,7 +4,7 @@ from ckan.common import config
 from ckan.logic import get_action
 from pyhandle.clientcredentials import PIDClientCredentials
 from pyhandle.handleclient import PyHandleClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, or_
 from sqlalchemy.orm import sessionmaker
 
 from ckanext.mongodatastore.exceptions import QueryNotFoundException
@@ -143,8 +143,20 @@ class QueryStoreController:
             self.session.flush()
             return staged_query, metadata
 
-    def retrieve_query(self, internal_id):
+    def retrieve_query_by_internal_id(self, internal_id):
         result = self.session.query(Query).filter(Query.id == internal_id).first()
+
+        if not result:
+            raise QueryNotFoundException()
+
+        meta_data = {}
+        for meta_field in self.session.query(MetaDataField).filter(MetaDataField.query_id == result.id):
+            meta_data[meta_field.key] = meta_field.value
+
+        return result, meta_data
+
+    def retrieve_query_by_pid(self, pid):
+        result = self.session.query(Query).filter(Query.handle_pid.like(str(pid))).first()
 
         if not result:
             raise QueryNotFoundException()

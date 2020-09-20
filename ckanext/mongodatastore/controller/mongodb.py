@@ -31,11 +31,11 @@ type_conversion_dict = {
 }
 
 
-def calculate_resultset_hash_job(pid):
+def calculate_resultset_hash_job(internal_id):
     client = MongoClient(config.get(u'ckan.datastore.write_url'))
     querystore = QueryStoreController(config.get(u'ckanext.mongodatastore.querystore_url'))
 
-    q, metadata = querystore.retrieve_query(pid)
+    q, metadata = querystore.retrieve_query_by_internal_id(internal_id)
     c = client.get_database(config.get(u'ckanext.mongodatastore.database_name')).get_collection(q.resource_id)
     stored_query = q.query
 
@@ -49,7 +49,7 @@ def calculate_resultset_hash_job(pid):
     result = c.find(filter=stored_query['filter'], projection=stored_query['projection'], sort=stored_query['sort'])
 
     _hash = calculate_hash(result)
-    querystore.update_hash(pid, _hash)
+    querystore.update_hash(internal_id, _hash)
 
 
 class VersionedDataStoreController:
@@ -275,9 +275,13 @@ class VersionedDataStoreController:
 
             return query.id
 
-        def execute_stored_query(self, internal_id, offset, limit, include_data=False):
+        def execute_stored_query(self, id, offset, limit, include_data=False):
             log.debug("execute_stored_query")
-            q, metadata = self.querystore.retrieve_query(internal_id)
+
+            if type(id) in [str, unicode] and id.isdigit() or type(id) == int:
+                q, metadata = self.querystore.retrieve_query_by_internal_id(int(id))
+            else:
+                q, metadata = self.querystore.retrieve_query_by_pid(id)
 
             if q:
                 log.debug("query found")
@@ -318,7 +322,7 @@ class VersionedDataStoreController:
                 return result
             else:
                 log.debug("query not found")
-                raise QueryNotFoundException('No query with PID {0} found'.format(internal_id))
+                raise QueryNotFoundException('No query with PID {0} found'.format(id))
 
         def query_by_fulltext(self, resource_id, query, projection, sort, offset, limit, include_total,
                               none_versioned=False):

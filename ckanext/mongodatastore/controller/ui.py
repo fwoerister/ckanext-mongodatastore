@@ -101,12 +101,12 @@ class QueryStoreUIController(BaseController):
             abort(404, 'Unfortunately there is no entry with pid {0} in the query store!'.format(id))
 
         count = 0
-        if result['records_preview']:
-            count = len(result['records_preview'])
+        if result['records']:
+            count = len(result['records'])
 
         return render('mongodatastore/query_view.html', extra_vars={'query': result['query'],
                                                                     'meta': result['meta'],
-                                                                    'result_set': result['records_preview'],
+                                                                    'result_set': result['records'],
                                                                     'count': count,
                                                                     'projection': result['fields']})
 
