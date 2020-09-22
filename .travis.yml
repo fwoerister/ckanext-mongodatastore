@@ -3,23 +3,11 @@ language: python
 python:
   - "2.7"
 
-services:
-  - docker
-
 addons:
   hosts:
     - ckan
 
-env:
-  - DOCKER_COMPOSE_VERSION=1.26.2
-
 install:
   - bash bin/travis-build.bash
-
-before_install:
-  - sudo rm /usr/local/bin/docker-compose
-  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
-  - chmod +x docker-compose
-  - sudo mv docker-compose /usr/local/bin
 
 script: sh bin/travis-run.sh
