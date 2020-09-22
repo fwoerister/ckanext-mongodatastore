@@ -1,6 +1,5 @@
 import hashlib
 import json
-import urllib
 from collections import OrderedDict
 
 HASH_ALGORITHM = hashlib.md5
@@ -43,4 +42,4 @@ def calculate_hash(data):
 
 
 def urlencode(s):
-    return urllib.parse.quote(s).replace('-', '--')
+    return s.replace('/','%2F').replace('-', '--')

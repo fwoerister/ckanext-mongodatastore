@@ -1,3 +1,4 @@
+ckanext~=0.1
 pyhandle~=1.0.3
 click~=7.1.1
 mock~=3.0.5
