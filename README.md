@@ -50,8 +50,12 @@ To install ckanext-mongodatastore:
 ## Config Settings
 For running the MongoDb datastore two settings have to configured in your CKAN's configuration file::
 
-    ckan.datastore.write_url = mongodb://[datastorehost]:27017
-    ckan.querystore.url = [URL to your query store database]
+Name | Description | Default
+--|--
+`ckanext.mongodatastore.mongodb_url` | URL pointing to the MongoDB instance | 
+`ckanext.mongodatastore.querystore_url` | URL pointing to the QueryStore database |
+`ckanext.mongodatastore.sharding_enabled` | If a sharded MongoDB instance is used, the sharding feature has to be enabled | `False`
+`ckanext.mongodatastore.database_name` | Name of the MongoDB database, that contains all resource collections | `CKAN_Datastore`
 
 ## Development Installation
 
