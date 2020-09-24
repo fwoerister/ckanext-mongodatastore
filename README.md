@@ -29,7 +29,7 @@
 ckanext-mongodatastore
 ======================
 
-The MongoDatastore is a datastore implementation for `CKAN <https://www.ckan.org>`_, that uses MongoDB for storing data records. One aspect of this implementation is, that it follows the `RDA Recommendations for Data Citation <https://doi.org/10.15497/RDA00016>`_. This guarantiees citability for every query that is submited to the datastore. In addition this extension is capable of pulling datasets from an existing datasource (e.g. a relational database) into the datastore. A IDatasource Interface enables ckan extension developers to implement their own DataSource. This extension comes with an Postgre DataSource implementation as a proof of concept. For a more detailed explanation check out the `Wiki <https://github.com/fwoerister/ckanext-mongodatastore/wiki>`_.
+The MongoDatastore is a datastore implementation for `CKAN <https://www.ckan.org>`_, that uses MongoDB for storing data records. One aspect of this implementation is, that it follows the `RDA Recommendations for Data Citation <https://doi.org/10.15497/RDA00016>`_. This guarantiees citability for every query that is submited to the datastore.
 
 .. image:: images/BigPicture.png
    :align: center
@@ -40,7 +40,7 @@ The MongoDatastore is a datastore implementation for `CKAN <https://www.ckan.org
 Requirements
 ------------
 
-This CKAN extension is tested with CKAN 2.7 running on Python 2.7.
+This CKAN extension is tested with CKAN 2.8.5 running on Python 2.7.
 
 To run this plugin beside an CKAN a mongo and a postgre database is required. The mongo database is needed for storing the data records and the postgre database is used as a querystore, described in the RDA Recommendations. For both instances a connection string has to be set in the CKAN config file.
 
