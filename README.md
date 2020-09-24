@@ -1,33 +1,4 @@
-.. You should enable this project on travis-ci.org and coveralls.io to make
-   these badges work. The necessary Travis and Coverage config files have been
-   generated for you.
-
-.. image:: https://travis-ci.org/fwoerister/ckanext-mongodatastore.svg?branch=master
-    :target: https://travis-ci.org/fwoerister/ckanext-mongodatastore
-    
-.. image:: https://coveralls.io/repos/github/fwoerister/ckanext-mongodatastore/badge.svg?branch=master
-   :target: https://coveralls.io/github/fwoerister/ckanext-mongodatastore?branch=master
-
-.. image:: https://pypip.in/version/ckanext-mongodatastore/badge.svg
-    :target: https://pypi.python.org/pypi/ckanext-mongodatastore/
-    :alt: Latest Version
-
-.. image:: https://pypip.in/py_versions/ckanext-mongodatastore/badge.svg
-    :target: https://pypi.python.org/pypi/ckanext-mongodatastore/
-    :alt: Supported Python versions
-
-.. image:: https://pypip.in/status/ckanext-mongodatastore/badge.svg
-    :target: https://pypi.python.org/pypi/ckanext-mongodatastore/
-    :alt: Development Status
-
-.. image:: https://pypip.in/license/ckanext-mongodatastore/badge.svg
-    :target: https://pypi.python.org/pypi/ckanext-mongodatastore/
-    :alt: License
-
-
-======================
-ckanext-mongodatastore
-======================
+# ckanext-mongodatastore
 
 The MongoDatastore is a datastore implementation for `CKAN <https://www.ckan.org>`_, that uses MongoDB for storing data records. One aspect of this implementation is, that it follows the `RDA Recommendations for Data Citation <https://doi.org/10.15497/RDA00016>`_. This guarantiees citability for every query that is submited to the datastore.
 
@@ -36,21 +7,12 @@ The MongoDatastore is a datastore implementation for `CKAN <https://www.ckan.org
 
 *As this extension provides an implementation of the* `IDatastoreBackend <https://docs.ckan.org/en/latest/maintaining/datastore.html#extending-datastore>`_, *therefore the DataStore API can be used as before.*
 
-------------
-Requirements
-------------
-
+## Requirements
 This CKAN extension is tested with CKAN 2.8.5 running on Python 2.7.
 
 To run this plugin beside an CKAN a mongo and a postgre database is required. The mongo database is needed for storing the data records and the postgre database is used as a querystore, described in the RDA Recommendations. For both instances a connection string has to be set in the CKAN config file.
 
-------------
-Installation
-------------
-
-.. Add any additional install steps to the list below.
-   For example installing any non-Python dependencies or adding any required
-   config settings.
+## Installation
 
 To install ckanext-mongodatastore:
 
@@ -81,19 +43,13 @@ To install ckanext-mongodatastore:
 
      sudo service apache2 reload
 
-
----------------
-Config Settings
----------------
+## Config Settings
 For running the MongoDb datastore two settings have to configured in your CKAN's configuration file::
 
     ckan.datastore.write_url = mongodb://[datastorehost]:27017
     ckan.querystore.url = [URL to your query store database]
 
-
-------------------------
-Development Installation
-------------------------
+## Development Installation
 
 To install ckanext-mongodatastore for development, activate your CKAN virtualenv and
 do::
@@ -103,10 +59,7 @@ do::
     python setup.py develop
     pip install -r dev-requirements.txt
 
-
------------------
-Running the Tests
------------------
+## Running the Tests
 
 To run the tests, do::
 
@@ -117,10 +70,7 @@ coverage installed in your virtualenv (``pip install coverage``) then run::
 
     nosetests --nologcapture --with-pylons=test.ini --with-coverage --cover-package=ckanext.mongodatastore --cover-inclusive --cover-erase --cover-tests
 
-
-----------------------------------------
-Releasing a New Version of ckanext-mongodatastore
-----------------------------------------
+## Releasing a New Version of ckanext-mongodatastore
 
 ckanext-mongodatastore is availabe on PyPI as https://pypi.python.org/pypi/ckanext-mongodatastore.
 To publish a new version to PyPI follow these steps:
