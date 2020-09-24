@@ -7,7 +7,7 @@
 
 # ckanext-mongodatastore
 
-The MongoDatastore is a datastore implementation for `CKAN <https://www.ckan.org>`_, that uses MongoDB for storing data records. One aspect of this implementation is, that it follows the `RDA Recommendations for Data Citation <https://doi.org/10.15497/RDA00016>`_. This guarantiees citability for every query that is submited to the datastore.
+The MongoDatastore is a datastore implementation for [CKAN](https://www.ckan.org), that uses [MongoDB](https://www.mongodb.org) for storing data records. One aspect of this implementation is, that it follows the [RDA Recommendations for Data Citation](https://doi.org/10.15497/RDA00016). This guarantiees citability for every query that is submited to the datastore.
 
 <div style="text-align:center"><img src='images/BigPicture.png' align='center'/></div>
 
