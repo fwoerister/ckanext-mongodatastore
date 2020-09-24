@@ -26,16 +26,18 @@ To install ckanext-mongodatastore:
 
 2. If not already existing, a QueryStore database has to be created::
 
-     sudo -u postgres createuser -S -D -R -P querystore
-     sudo -u postgres createdb -O querystore querystore -E utf-8
+```
+sudo -u postgres createuser -S -D -R -P querystore
+sudo -u postgres createdb -O querystore querystore -E utf-8
+```
 
 3. Activate your CKAN virtual environment, for example::
 
-     . /usr/lib/ckan/default/bin/activate
+`. /usr/lib/ckan/default/bin/activate`
 
 4. Install the ckanext-mongodatastore Python package into your virtual environment::
 
-     pip install ckanext-mongodatastore
+`pip install ckanext-mongodatastore`
 
 5. Set the ckanext-mongodatastore specific config settings the CKAN configuration file 
    (by default the config file is located at
@@ -47,7 +49,7 @@ To install ckanext-mongodatastore:
 
 6. Restart CKAN. For example if you've deployed CKAN with Apache on Ubuntu::
 
-     sudo service apache2 reload
+`sudo service apache2 reload`
 
 ## Config Settings
 For running the MongoDb datastore two settings have to configured in your CKAN's configuration file::
