@@ -3,6 +3,8 @@
 [![Supported Python versions](https://pypip.in/py_versions/ckanext-mongodatastore/badge.svg)](https://pypi.python.org/pypi/ckanext-mongodatastore/)
 [![Development Status](https://pypip.in/status/ckanext-mongodatastore/badge.svg)](https://pypi.python.org/pypi/ckanext-mongodatastore/https://pypi.python.org/pypi/ckanext-mongodatastore/)
 
+<img src="images/TU_Signet_SW_rgb.png" align="right" width="150px"/>
+
 # ckanext-mongodatastore
 
 The MongoDatastore is a datastore implementation for `CKAN <https://www.ckan.org>`_, that uses MongoDB for storing data records. One aspect of this implementation is, that it follows the `RDA Recommendations for Data Citation <https://doi.org/10.15497/RDA00016>`_. This guarantiees citability for every query that is submited to the datastore.
