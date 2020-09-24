@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/fwoerister/ckanext-mongodatastore.svg?branch=master)](https://travis-ci.org/ckan/ckanext-mongodatastore)
+[![Build Status](https://travis-ci.org/fwoerister/ckanext-mongodatastore.svg?branch=master)](https://travis-ci.org/fwoerister/ckanext-mongodatastore)
 [![Latest Version](https://pypip.in/version/ckanext-mongodatastore/badge.svg)](https://pypi.python.org/pypi/ckanext-mongodatastore/)
 [![Supported Python versions](https://pypip.in/py_versions/ckanext-mongodatastore/badge.svg)](https://pypi.python.org/pypi/ckanext-mongodatastore/)
 [![Development Status](https://pypip.in/status/ckanext-mongodatastore/badge.svg)](https://pypi.python.org/pypi/ckanext-mongodatastore/https://pypi.python.org/pypi/ckanext-mongodatastore/)
