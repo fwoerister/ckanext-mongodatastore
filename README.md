@@ -1,3 +1,9 @@
+[![Build Status](https://travis-ci.org/fwoerister/ckanext-mongodatastore.svg?branch=master)](https://travis-ci.org/ckan/ckanext-mongodatastore)
+[![Latest Version](https://pypip.in/version/ckanext-mongodatastore/badge.svg)](https://pypi.python.org/pypi/ckanext-mongodatastore/)
+[![Supported Python versions](https://pypip.in/py_versions/ckanext-mongodatastore/badge.svg)](https://pypi.python.org/pypi/ckanext-mongodatastore/)
+[![Development Status](https://pypip.in/status/ckanext-mongodatastore/badge.svg)](https://pypi.python.org/pypi/ckanext-mongodatastore/https://pypi.python.org/pypi/ckanext-mongodatastore/)
+[![License](https://img.shields.io/pypi/l/ckanext-mongodatastore.svg)](https://pypi.python.org/pypi/ckanext-mongodatastore/)
+
 # ckanext-mongodatastore
 
 The MongoDatastore is a datastore implementation for `CKAN <https://www.ckan.org>`_, that uses MongoDB for storing data records. One aspect of this implementation is, that it follows the `RDA Recommendations for Data Citation <https://doi.org/10.15497/RDA00016>`_. This guarantiees citability for every query that is submited to the datastore.
