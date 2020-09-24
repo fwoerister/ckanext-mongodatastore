@@ -237,14 +237,15 @@ class VersionedDataStoreController:
                         record['_valid_to'] = datetime.max
                         required_updates.append(record)
 
-            col.update_many({'id': {'$in': [record[record_id_key] for record in required_updates]},
-                             '_latest': True},
-                            {'$currentDate': {'_valid_to': True},
-                             '$set': {'_latest': False}})
-            col.insert_many(required_updates)
-            col.update_many({'_created': {'$exists': False}},
-                            {'$currentDate': {'_created': True},
-                             '$set': {'_latest': True}})
+            if required_updates:
+                col.update_many({'id': {'$in': [record[record_id_key] for record in required_updates]},
+                                 '_latest': True},
+                                {'$currentDate': {'_valid_to': True},
+                                 '$set': {'_latest': False}})
+                col.insert_many(required_updates)
+                col.update_many({'_created': {'$exists': False}},
+                                {'$currentDate': {'_created': True},
+                                 '$set': {'_latest': True}})
 
         def issue_pid(self, resource_id, statement, projection, sort, q):
             now = datetime.now(pytz.UTC)
