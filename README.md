@@ -88,7 +88,7 @@ ckanext-mongodatastore is availabe on PyPI as https://pypi.python.org/pypi/ckane
 To publish a new version to PyPI follow these steps:
 
 1. Update the version number in the ``setup.py`` file.
-   See `PEP 440 <http://legacy.python.org/dev/peps/pep-0440/#public-version-identifiers>`_
+   See [PEP 440](http://legacy.python.org/dev/peps/pep-0440/#public-version-identifiers)
    for how to choose version numbers.
 
 2. Create a source distribution of the new version::
