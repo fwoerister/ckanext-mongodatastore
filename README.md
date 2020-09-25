@@ -11,7 +11,7 @@ This plugin provides a datastore implementation for [CKAN](https://www.ckan.org)
 
 <div style="text-align:center"><img src='images/BigPicture.png' align='center'/></div>
 
-*As this extension provides an implementation of the* `IDatastoreBackend <https://docs.ckan.org/en/latest/maintaining/datastore.html#extending-datastore>`_, *therefore the DataStore API can be used as before.*
+*As this extension provides an implementation of the* [IDatastoreBackend](https://docs.ckan.org/en/latest/maintaining/datastore.html#extending-datastore), *therefore the DataStore API can be used as before.*
 
 ## Requirements
 This CKAN extension is tested with CKAN 2.8.5 running on Python 2.7.
