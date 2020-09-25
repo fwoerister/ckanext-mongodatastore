@@ -2,6 +2,33 @@ import pymongo
 
 from ckanext.mongodatastore.util import normalize_json
 
+TYPE_CONVERSION_DICT = {
+    'string': str,
+    'str': str,
+    'text': str,
+    'char': str,
+    'integer': int,
+    'int': int,
+    'float': float,
+    'number': float,
+    'numeric': float,
+    'bigint': long
+}
+
+NUMERIC_TYPES = [
+    'integer',
+    'int',
+    'float',
+    'number',
+    'numeric',
+    'bigint'
+]
+
+LOGICAL_OPERATORS = [
+    '$and',
+    '$or'
+]
+
 
 def transform_query_to_statement(query, schema):
     new_filter = {'$or': []}
@@ -18,18 +45,17 @@ def transform_query_to_statement(query, schema):
 
 def transform_filter_to_statement(filters, schema):
     new_filter = {}
-
     schema_dict = {}
+
     for field in schema:
         schema_dict[field['id']] = field
 
     for key in filters.keys():
-        if key in ['$and', '$or']:
+        if key in LOGICAL_OPERATORS:
             new_filter[key] = filters[key]
         elif type(filters[key]) is list:
             values = []
-
-            if schema_dict[key]['type'] in ['number', 'numeric']:
+            if schema_dict[key]['type'] in NUMERIC_TYPES:
                 for val in filters[key]:
                     try:
                         values.append(float(val))
@@ -42,27 +68,31 @@ def transform_filter_to_statement(filters, schema):
         elif type(filters[key]) is dict:
             new_filter[key] = filters[key]
         else:
-            if schema_dict[key]['type'] in ['number', 'numeric'] and type(filters[key]) in (str, unicode):
+            if schema_dict[key]['type'] in NUMERIC_TYPES and type(filters[key]) in (str, unicode):
                 try:
                     if filters[key].startswith('<='):
-                        value = float(filters[key][2:])
+                        value = TYPE_CONVERSION_DICT[schema_dict[key]['type']](filters[key][2:])
                         new_filter[key] = {'$lte': value}
                     elif filters[key].startswith('>='):
-                        value = float(filters[key][2:])
+                        value = TYPE_CONVERSION_DICT[schema_dict[key]['type']](filters[key][2:])
                         new_filter[key] = {'$gte': value}
                     elif filters[key].startswith('<'):
-                        value = float(filters[key][1:])
+                        value = TYPE_CONVERSION_DICT[schema_dict[key]['type']](filters[key][1:])
                         new_filter[key] = {'$lt': value}
                     elif filters[key].startswith('>'):
-                        value = float(filters[key][1:])
+                        value = TYPE_CONVERSION_DICT[schema_dict[key]['type']](filters[key][1:])
                         new_filter[key] = {'$gt': value}
                     else:
-                        new_filter[key] = float(filters[key])
+                        new_filter[key] = TYPE_CONVERSION_DICT[schema_dict[key]['type']](filters[key])
 
                 except TypeError:
                     new_filter[key] = filters[key]
             else:
-                new_filter[key] = filters[key]
+                try:
+                    new_filter[key] = TYPE_CONVERSION_DICT[schema_dict[key]['type']](filters[key])
+                except TypeError:
+                    new_filter[key] = filters[key]
+
     return normalize_json(new_filter)
 
 

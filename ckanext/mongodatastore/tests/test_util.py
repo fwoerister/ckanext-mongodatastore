@@ -42,6 +42,7 @@ class TestNormalizeJson(unittest.TestCase):
 
 
 class TestHashCalculation(unittest.TestCase):
+
     def test_hash_of_string(self):
         data = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, " \
                "sed diam nonumy eirmod tempor invidunt ut labore et dolore " \
@@ -71,6 +72,7 @@ class TestHashCalculation(unittest.TestCase):
 
 
 class TestUrlEncoding(unittest.TestCase):
+
     def test_url_encoding(self):
         handle_pid = "TEST/af7fb826-fcae-11ea-adc1-0242ac120002"
 
