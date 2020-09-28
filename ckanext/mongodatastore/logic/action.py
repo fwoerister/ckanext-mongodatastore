@@ -31,7 +31,7 @@ def querystore_resolve(context, data_dict):
 
     skip = data_dict.get('offset', 0)
     limit = data_dict.get('limit', 0)
-    include_data = bool(data_dict.get('include_data', 'True'))
+    include_data = data_dict.get('include_data', 'true').lower() == 'true'
 
     if skip:
         skip = int(skip)

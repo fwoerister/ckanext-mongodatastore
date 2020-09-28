@@ -386,7 +386,7 @@ class VersionedDataStoreController:
 
             mongodb_url = config.get(u'ckanext.mongodatastore.mongodb_url')
             querystore_url = config.get(u'ckanext.mongodatastore.querystore_url')
-            sharding_enabled = bool(config.get(u'ckanext.mongodatastore.sharding_enabled'))
+            sharding_enabled = config.get(u'ckanext.mongodatastore.sharding_enabled').lower() == 'true'
             database_name = config.get(u'ckanext.mongodatastore.database_name')
             rows_max = config.get(u'ckan.mongodatastore.max_result_size', 500)
             ckan_site_url = config.get(u'ckan.site_url')

@@ -71,7 +71,7 @@ def dump_dataset(pid):
 
     export_format = request.args.get('format', 'json')
     csv_delimiter = request.args.get('csvDelimiter', ';')
-    csv_include_header = bool(request.args.get('includeHeader', 'True'))
+    csv_include_header = request.args.get('includeHeader', 'true').lower() == 'true'
 
     if export_format == 'csv':
         r = Response(to_csv(), mimetype='text/csv', content_type='application/octet-datadump')
