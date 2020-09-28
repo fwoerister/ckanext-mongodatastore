@@ -27,7 +27,7 @@ type_conversion_dict = {
     'float': float,
     'number': float,
     'numeric': float,
-    'bigint': long
+    'bigint': int
 }
 
 
@@ -279,7 +279,7 @@ class VersionedDataStoreController:
         def execute_stored_query(self, id, offset, limit, include_data=False):
             log.debug("execute_stored_query")
 
-            if type(id) in [str, unicode] and id.isdigit() or type(id) == int:
+            if type(id) in [str] and id.isdigit() or type(id) == int:
                 q, metadata = self.querystore.retrieve_query_by_internal_id(int(id))
             else:
                 q, metadata = self.querystore.retrieve_query_by_pid(id)
@@ -386,7 +386,7 @@ class VersionedDataStoreController:
 
             mongodb_url = config.get(u'ckanext.mongodatastore.mongodb_url')
             querystore_url = config.get(u'ckanext.mongodatastore.querystore_url')
-            sharding_enabled = bool(config.get(u'ckanext.mongodatastore.sharding_enabled'))
+            sharding_enabled = config.get(u'ckanext.mongodatastore.sharding_enabled').lower() == 'true'
             database_name = config.get(u'ckanext.mongodatastore.database_name')
             rows_max = config.get(u'ckan.mongodatastore.max_result_size', 500)
             ckan_site_url = config.get(u'ckan.site_url')

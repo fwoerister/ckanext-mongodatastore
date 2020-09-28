@@ -1,6 +1,4 @@
-{% set action = h.url_for(
-controller='ckanext.mongodatastore.controller.ui:QueryStoreUIController',
-action='view_history_query') %}
+{% set action = h.url_for('storedquery.render_landing_page') %}
 
 <div class="module module-search module-narrow module-shallow box">
     <form class="module-content search-form" method="get" action="{{ action }}">

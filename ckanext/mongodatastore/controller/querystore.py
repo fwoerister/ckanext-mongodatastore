@@ -1,19 +1,19 @@
+import json
 import logging
 
 from ckan.common import config
 from ckan.logic import get_action
-from pyhandle.clientcredentials import PIDClientCredentials
-from pyhandle.handleclient import PyHandleClient
-from sqlalchemy import create_engine, or_
+from easyhandle.client import BasicAuthHandleClient
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from ckanext.mongodatastore.exceptions import QueryNotFoundException
 from ckanext.mongodatastore.model import Query, RecordField, MetaDataField
 from ckanext.mongodatastore.util import calculate_hash
 
-LANDING_PAGE_URL_TEMPLATE = '{}/querystore/view_query?id={}'
+LANDING_PAGE_URL_TEMPLATE = '{}/storedquery/landingpage?id={}'
 API_URL_TEMPLATE = '{}/api/3/action/querystore_resolve?id={}'
-STREAM_URL_TEMPLATE = '{}/datadump/querystore_resolve/{}'
+STREAM_URL_TEMPLATE = '{}/storedquery/{}/dump'
 
 CKAN_SITE_URL = config.get(u'ckan.site_url')
 
@@ -23,8 +23,11 @@ log = logging.getLogger(__name__)
 class QueryStoreController:
     def __init__(self, querystore_url):
         self.engine = create_engine(querystore_url, echo=False)
-        cred = PIDClientCredentials.load_from_JSON('/etc/ckan/cred.json')
-        self.handle_client = PyHandleClient('rest').instantiate_with_credentials(cred)
+
+        with open('/etc/ckan/cred.json') as config_file:
+            config = json.loads(config_file.read())
+        self.handle_client = BasicAuthHandleClient.load_from_config(config)
+
         Session = sessionmaker(bind=self.engine)
         self.session = Session()
 
@@ -33,12 +36,13 @@ class QueryStoreController:
         api_url = API_URL_TEMPLATE.format(CKAN_SITE_URL, str(internal_id))
         stream_url = STREAM_URL_TEMPLATE.format(CKAN_SITE_URL, str(internal_id))
 
-        handle = self.handle_client.generate_and_register_handle('TEST', landing_page)
-        self.handle_client.modify_handle_value(handle, ttl=None, add_if_not_exist=True,
-                                               API_URL={'format': 'string', 'value': api_url},
-                                               STREAM_URL={'format': 'string', 'value': stream_url})
+        response = self.handle_client.put_handle_for_urls({
+            'URL': landing_page,
+            'API_URL': api_url,
+            'STREAM_URL': stream_url
+        })
 
-        return handle
+        return response.json().get('handle')
 
     def store_query(self, resource_id, query, timestamp, result_hash,
                     hash_algorithm, fields_metadata):

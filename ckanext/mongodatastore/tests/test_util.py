@@ -37,11 +37,21 @@ class TestNormalizeJson(unittest.TestCase):
     def test_normalize_deep_json(self):
         result = normalize_json(DEEP_DICT)
         expected_result = '{"address": {"city": "testcity", "country": "at", "street": "teststreet 123", "zip": "1234"}, "firstname": "Florian", "id": 1, "lastname": "Woerister", "mailaddresses": ["abc@abc.com", "xyz@xyz.com"]}'
-        print json.dumps(result)
         assert json.dumps(result) == expected_result
 
 
 class TestHashCalculation(unittest.TestCase):
+
+    def test_hash_of_unicode(self):
+        data = u"Lorem ipsum dolor sit amet, consetetur sadipscing elitr, " \
+               u"sed diam nonumy eirmod tempor invidunt ut labore et dolore " \
+               u"magna aliquyam erat, sed diam voluptua. At vero eos et " \
+               u"accusam et justo duo dolores et ea rebum."
+
+        hash_value = calculate_hash(data)
+        expected_hash = "8fc9e48edfa6fa591f0f48851f7a641a"
+
+        assert hash_value == expected_hash
 
     def test_hash_of_string(self):
         data = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, " \

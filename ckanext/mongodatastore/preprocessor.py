@@ -12,7 +12,7 @@ TYPE_CONVERSION_DICT = {
     'float': float,
     'number': float,
     'numeric': float,
-    'bigint': long
+    'bigint': int
 }
 
 NUMERIC_TYPES = [
@@ -68,7 +68,7 @@ def transform_filter_to_statement(filters, schema):
         elif type(filters[key]) is dict:
             new_filter[key] = filters[key]
         else:
-            if schema_dict[key]['type'] in NUMERIC_TYPES and type(filters[key]) in (str, unicode):
+            if schema_dict[key]['type'] in NUMERIC_TYPES and type(filters[key]) == str:
                 try:
                     if filters[key].startswith('<='):
                         value = TYPE_CONVERSION_DICT[schema_dict[key]['type']](filters[key][2:])

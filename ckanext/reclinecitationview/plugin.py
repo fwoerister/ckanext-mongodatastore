@@ -17,7 +17,7 @@ def get_mapview_config():
     Extracts and returns map view configuration of the reclineview extension.
     '''
     namespace = 'ckanext.spatial.common_map.'
-    return dict([(k.replace(namespace, ''), v) for k, v in config.iteritems()
+    return dict([(k.replace(namespace, ''), v) for k, v in config.items()
                  if k.startswith(namespace)])
 
 
