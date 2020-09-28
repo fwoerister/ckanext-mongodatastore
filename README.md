@@ -1,7 +1,7 @@
-[![Build Status](https://travis-ci.org/fwoerister/ckanext-versioned-mongodatastore.svg?branch=master)](https://travis-ci.org/fwoerister/ckanext-versioned-mongodatastore)
-[![Latest Version](https://pypip.in/version/ckanext-versioned-mongodatastore/badge.svg)](https://pypi.python.org/pypi/ckanext-versioned-mongodatastore/)
-[![Supported Python versions](https://pypip.in/py_versions/ckanext-versioned-mongodatastore/badge.svg)](https://pypi.python.org/pypi/ckanext-versioned-mongodatastore/)
-[![Development Status](https://pypip.in/status/ckanext-versioned-mongodatastore/badge.svg)](https://pypi.python.org/pypi/ckanext-versioned-mongodatastore/https://pypi.python.org/pypi/ckanext-versioned-mongodatastore/)
+[![Build Status](https://travis-ci.org/fwoerister/ckanext-mongodatastore.svg?branch=master)](https://travis-ci.org/fwoerister/ckanext-mongodatastore)
+[![Latest Version](https://pypip.in/version/ckanext-mongodatastore/badge.svg)](https://pypi.python.org/pypi/ckanext-mongodatastore/)
+[![Supported Python versions](https://pypip.in/py_versions/ckanext-mongodatastore/badge.svg)](https://pypi.python.org/pypi/ckanext-mongodatastore/)
+[![Development Status](https://pypip.in/status/ckanext-mongodatastore/badge.svg)](https://pypi.python.org/pypi/ckanext-mongodatastore/https://pypi.python.org/pypi/ckanext-mongodatastore/)
 
 <img src="https://raw.githubusercontent.com/fwoerister/ckanext-versioned-mongodatastore/master/images/TU_Signet_SW_rgb.png" align="right" width="150px"/>
 
