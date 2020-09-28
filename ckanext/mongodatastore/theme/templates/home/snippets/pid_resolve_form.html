@@ -1,4 +1,5 @@
-{% set action = h.url_for('querystore.view',
+{% set action = h.url_for(
+controller='querystore.view',
 action='view_history_query') %}
 
 <div class="module module-search module-narrow module-shallow box">
