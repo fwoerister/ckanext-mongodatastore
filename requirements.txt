@@ -1,10 +1,8 @@
-ckanext~=0.1
-pyhandle~=1.0.3
-click~=7.1.1
-mock~=3.0.5
-bson~=0.5.9
-pytz~=2019.3
-pymongo~=3.10.1
+click~=7.1.2
+bson~=0.5.10
+pytz~=2020.1
+pymongo~=3.11.0
 xmltodict~=0.12.0
 DateTime~=4.3
 deprecation
+easyhandle~=0.0.1
