@@ -14,7 +14,7 @@ This plugin provides a datastore implementation for [CKAN](https://www.ckan.org)
 *As this extension provides an implementation of the* [IDatastoreBackend](https://docs.ckan.org/en/latest/maintaining/datastore.html#extending-datastore), *therefore the DataStore API can be used as before.*
 
 ## Requirements
-This CKAN extension is tested with CKAN 2.8.5 running on Python 2.7.
+This CKAN extension is tested with CKAN 2.9.0 running on Python 3.8.2.
 
 To run this plugin beside an CKAN a mongo and a postgre database is required. The mongo database is needed for storing the data records and the postgre database is used as a querystore, described in the RDA Recommendations. For both instances a connection string has to be set in the CKAN config file.
 
