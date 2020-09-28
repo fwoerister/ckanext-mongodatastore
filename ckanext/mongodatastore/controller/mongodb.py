@@ -27,7 +27,7 @@ type_conversion_dict = {
     'float': float,
     'number': float,
     'numeric': float,
-    'bigint': long
+    'bigint': int
 }
 
 

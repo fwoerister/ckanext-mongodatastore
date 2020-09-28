@@ -12,7 +12,7 @@ TYPE_CONVERSION_DICT = {
     'float': float,
     'number': float,
     'numeric': float,
-    'bigint': long
+    'bigint': int
 }
 
 NUMERIC_TYPES = [
