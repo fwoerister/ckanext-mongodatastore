@@ -1,5 +1,4 @@
-{% set action = h.url_for(
-controller='ckanext.mongodatastore.controller.ui:QueryStoreUIController',
+{% set action = h.url_for('querystore.view',
 action='view_history_query') %}
 
 <div class="module module-search module-narrow module-shallow box">
