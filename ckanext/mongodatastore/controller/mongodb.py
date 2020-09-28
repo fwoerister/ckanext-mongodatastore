@@ -113,7 +113,7 @@ class VersionedDataStoreController:
 
         def _execute_distinct_query(self, resource_id, field, offset=0, limit=None):
             col = self._get_resource_collection(resource_id)
-            return {'records': list(col.distinct(key=field))[offset:limit]}
+            return {'records': list(map(lambda x: {field: x}, col.distinct(key=field)))[offset:limit]}
 
         def _get_resource_collection(self, resource_id):
             return self.datastore.get_collection(resource_id)
@@ -360,7 +360,7 @@ class VersionedDataStoreController:
             transformed_sort = transform_sort(sort)
 
             if distinct:
-                result = self._execute_distinct_query(resource_id, transformed_projection.keys()[0], offset, limit)
+                result = self._execute_distinct_query(resource_id, list(transformed_projection)[0], offset, limit)
             else:
                 result = self._execute_query(resource_id,
                                              transformed_statement,
