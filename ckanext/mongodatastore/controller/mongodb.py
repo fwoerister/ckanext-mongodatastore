@@ -279,7 +279,7 @@ class VersionedDataStoreController:
         def execute_stored_query(self, id, offset, limit, include_data=False):
             log.debug("execute_stored_query")
 
-            if type(id) in [str, unicode] and id.isdigit() or type(id) == int:
+            if type(id) in [str] and id.isdigit() or type(id) == int:
                 q, metadata = self.querystore.retrieve_query_by_internal_id(int(id))
             else:
                 q, metadata = self.querystore.retrieve_query_by_pid(id)

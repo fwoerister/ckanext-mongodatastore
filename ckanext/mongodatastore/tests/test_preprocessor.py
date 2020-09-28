@@ -58,7 +58,7 @@ class TestTransformStatement(unittest.TestCase):
         assert type(transformed_query['float_field']) == float
         assert type(transformed_query['number_field']) == float
         assert type(transformed_query['numeric_field']) == float
-        assert type(transformed_query['bigint_field']) == long
+        assert type(transformed_query['bigint_field']) == int
 
         assert json.dumps(transformed_query) == expected_query
 

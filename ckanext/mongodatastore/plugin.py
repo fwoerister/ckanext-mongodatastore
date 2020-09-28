@@ -1,9 +1,9 @@
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 from ckanext.datastore.interfaces import IDatastoreBackend
-from flask import Blueprint
 
-from ckanext.mongodatastore.datadump.datadump import dump_dataset
+from ckanext.mongodatastore import blueprint
+from ckanext.mongodatastore.cli import init_querystore
 from ckanext.mongodatastore.datastore_backend import MongoDataStoreBackend
 from ckanext.mongodatastore.logic.action import issue_query_pid, querystore_resolve, nonversioned_query
 from ckanext.mongodatastore.util import urlencode
@@ -16,6 +16,7 @@ class MongodatastorePlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IActions)
     plugins.implements(plugins.IBlueprint)
     plugins.implements(plugins.ITemplateHelpers)
+    plugins.implements(plugins.IClick)
 
     def update_config(self, config):
         toolkit.add_public_directory(config, 'theme/public')
@@ -29,22 +30,6 @@ class MongodatastorePlugin(plugins.SingletonPlugin):
             u'mongodb+srv': MongoDataStoreBackend,
         }
 
-    # IRoutes
-    def before_map(self, m):
-        m.connect('querystore.view', '/querystore/view_query',
-                  controller='ckanext.mongodatastore.controller.ui:QueryStoreUIController',
-                  action='view_history_query')
-
-        m.connect('querystore.datadump', '/querystore/dump_history_result_set',
-                  controller='ckanext.mongodatastore.controller.ui:QueryStoreUIController',
-                  action='dump_history_result_set')
-
-        m.connect('querystore.citationtext', '/querystore/render_citation_text',
-                  controller='ckanext.mongodatastore.controller.ui:QueryStoreUIController',
-                  action='render_citation_text')
-
-        return m
-
     # IActions
     def get_actions(self):
         actions = {
@@ -55,15 +40,14 @@ class MongodatastorePlugin(plugins.SingletonPlugin):
 
         return actions
 
+    # IBlueprint
     def get_blueprint(self):
-        blueprint = Blueprint(self.name, self.__module__)
-        rules = [
-            (u'/datadump/querystore_resolve/<int:pid>', u'querystore_resolve', dump_dataset),
-        ]
-        for rule in rules:
-            blueprint.add_url_rule(*rule)
+        return blueprint.bp
 
-        return blueprint
-
+    # ITemplateHelpers
     def get_helpers(self):
         return {'urlencode': urlencode}
+
+    # IClick
+    def get_commands(self):
+        return [init_querystore]

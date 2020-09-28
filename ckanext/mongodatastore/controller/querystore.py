@@ -11,9 +11,9 @@ from ckanext.mongodatastore.exceptions import QueryNotFoundException
 from ckanext.mongodatastore.model import Query, RecordField, MetaDataField
 from ckanext.mongodatastore.util import calculate_hash
 
-LANDING_PAGE_URL_TEMPLATE = '{}/querystore/view_query?id={}'
+LANDING_PAGE_URL_TEMPLATE = '{}/storedquery/landingpage?id={}'
 API_URL_TEMPLATE = '{}/api/3/action/querystore_resolve?id={}'
-STREAM_URL_TEMPLATE = '{}/datadump/querystore_resolve/{}'
+STREAM_URL_TEMPLATE = '{}/storedquery/{}/dump'
 
 CKAN_SITE_URL = config.get(u'ckan.site_url')
 

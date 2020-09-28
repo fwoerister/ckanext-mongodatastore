@@ -31,12 +31,12 @@ def calculate_hash(data):
     algo = HASH_ALGORITHM()
 
     if type(data) == str:
-        algo.update(data)
+        algo.update(data.encode('utf-8'))
     elif type(data) == dict:
-        algo.update(json.dumps(data, default=str, sort_keys=True))
+        algo.update(json.dumps(data, default=str, sort_keys=True, ensure_ascii=False).encode('utf-8'))
     elif type(data) == list:
         for doc in data:
-            algo.update(json.dumps(doc, default=str, sort_keys=True))
+            algo.update(json.dumps(doc, default=str, sort_keys=True, ensure_ascii=False).encode('utf-8'))
 
     return algo.hexdigest()
 

@@ -21,7 +21,7 @@ this.ckan.module('recline_view', function (jQuery) {
 
       event.data.client.call('POST', 'issue_pid', {'resource_id': resource_id, 'statement': prepared_filters, 'sort': attributes.sort}, function(data) {
 
-        url = '/querystore/view_query?id=' + data.result;
+        url = '/storedquery/landingpage?id=' + data.result;
 
         $('#cite-response-text').html("A background job was triggerd to calculate the hash value of the resultset. Once the job was successful all meta information of the subset can be found <a target=\"_blank\" href='"+url+"'>here</a>");
         $('#cite-response-panel').fadeIn();
@@ -80,7 +80,7 @@ this.ckan.module('recline_view', function (jQuery) {
 
       map_config = this.options.map_config;
 
-      query = new recline.Model.Query();
+      var query = new recline.Model.Query();
       query.set({ size: reclineView.limit || 100 });
       query.set({ from: reclineView.offset || 0 });
 
