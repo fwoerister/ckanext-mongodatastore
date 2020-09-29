@@ -15,7 +15,7 @@ def render_landing_page():
     internal_id = request.args.get('id')
     result = None
     try:
-        result = toolkit.get_action('querystore_resolve')(None, {'id': int(internal_id),
+        result = toolkit.get_action('querystore_resolve')(None, {'id': internal_id,
                                                                  'skip': 0,
                                                                  'limit': 100})
     except QueryNotFoundException as ex:
