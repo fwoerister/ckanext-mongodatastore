@@ -148,8 +148,5 @@
 {% endblock %}
 
 {% block styles %}
-    {{ super() }}
-
-    {% resource 'ckanext-mongodatastore/main' %}
-
+    {% asset 'ckanext-mongodatastore/main' %}
 {% endblock %}
