@@ -19,7 +19,7 @@ this.ckan.module('recline_view', function (jQuery) {
         prepared_filters[el.field] = el.term
       });
 
-      event.data.client.call('POST', 'issue_pid', {'resource_id': resource_id, 'statement': prepared_filters, 'sort': attributes.sort}, function(data) {
+      event.data.client.call('POST', 'issue_pid', {'resource_id': resource_id, 'statement': prepared_filters, 'q': attributes.q, 'sort': attributes.sort}, function(data) {
 
         url = '/storedquery/landingpage?id=' + data.result;
 
