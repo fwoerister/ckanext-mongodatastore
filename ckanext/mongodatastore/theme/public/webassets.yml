@@ -1,0 +1,16 @@
+main-css:
+  output: ckanext-mongoddatastore/%(version)s_mongodatastore.css
+  filters: cssrewrite
+
+  contents:
+    - css/datatables.css
+
+main:
+  output: ckanext-mongoddatastore/%(version)s_mongodatastore.js
+  extra:
+    preload:
+      - base/main
+      - ckanext-reclineview/main-css
+  contents:
+    - js/datatables.js
+    - js/datatablesview.js

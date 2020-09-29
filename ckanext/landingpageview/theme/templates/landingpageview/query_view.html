@@ -65,20 +65,20 @@
     <div class="btn-group navbar">
     <span>
         <a class="btn btn-primary resource-url-analytics resource-type-None"
-           href="/datadump/querystore_resolve/{{ query.id }}?format=csv">
+           href="{{ h.url_for('storedquery.dump_query', internal_id=query.id) }}?format=csv">
             <i class="fa fa-arrow-circle-o-down"></i> Download as CSV
         </a>
     </span>
 
         <span>
         <a class="btn btn-primary resource-url-analytics resource-type-None"
-           href="/datadump/querystore_resolve/{{ query.id }}?format=json">
+           href="{{ h.url_for('storedquery.dump_query', internal_id=query.id) }}?format=json">
             <i class="fa fa-arrow-circle-o-down"></i> Download as JSON
         </a>
     </span>
         <span>
         <a class="btn btn-primary resource-url-analytics resource-type-None"
-           href="/datadump/querystore_resolve/{{ query.id }}?format=xml">
+           href="{{ h.url_for('storedquery.dump_query', internal_id=query.id) }}?format=xml">
             <i class="fa fa-arrow-circle-o-down"></i> Download as XML
         </a>
     </span>
@@ -148,8 +148,5 @@
 {% endblock %}
 
 {% block styles %}
-    {{ super() }}
-
-    {% resource 'ckanext-mongodatastore/main' %}
-
+    {% asset 'ckanext-mongodatastore/main' %}
 {% endblock %}
