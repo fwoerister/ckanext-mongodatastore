@@ -166,3 +166,6 @@ class MongoDataStoreBackend(DatastoreBackend):
 
     def drop_function(self, *args, **kwargs):
         raise NotImplementedError()
+
+    def calculate_record_count(self, resource_id):
+        pass
