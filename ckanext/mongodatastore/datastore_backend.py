@@ -6,7 +6,7 @@ from ckanext.datastore.backend import DatastoreBackend
 
 from ckanext.mongodatastore.controller.mongodb import VersionedDataStoreController
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 MIN_LIMIT = 1
 MAX_LIMIT = 500
@@ -19,8 +19,8 @@ def raise_exeption(ex):
 def log_parameter_not_used_warning(param_list):
     for param in param_list:
         if param[1]:
-            log.debug('The parameter {0} is set, but has no effect in this DataStore backend implementation!'
-                      .format(param[0]))
+            logger.debug('The parameter {0} is set, but has no effect in this DataStore backend implementation!'
+                         .format(param[0]))
 
 
 class MongoDataStoreBackend(DatastoreBackend):
@@ -33,6 +33,7 @@ class MongoDataStoreBackend(DatastoreBackend):
         return cfg
 
     def create(self, context, data_dict):
+        logger.debug(f'datastore_create: {data_dict}')
         resource_id = data_dict.get('resource_id', None)
         records = data_dict.get('records', None)
         force = data_dict.get('force', False)
@@ -62,6 +63,7 @@ class MongoDataStoreBackend(DatastoreBackend):
         if records:
             self.mongo_cntr.upsert(resource_id, records)
 
+        logger.debug(f'datastore_create finsihed')
         return data_dict
 
     def upsert(self, context, data_dict):

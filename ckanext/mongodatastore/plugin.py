@@ -1,7 +1,6 @@
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 from ckanext.datastore.interfaces import IDatastoreBackend
-
 from ckanext.mongodatastore import blueprint
 from ckanext.mongodatastore.cli import init_querystore
 from ckanext.mongodatastore.datastore_backend import MongoDataStoreBackend
@@ -10,9 +9,8 @@ from ckanext.mongodatastore.util import urlencode
 
 
 class MongodatastorePlugin(plugins.SingletonPlugin):
-    plugins.implements(IDatastoreBackend)
+    plugins.implements(IDatastoreBackend, inherit=True)
     plugins.implements(plugins.IConfigurer)
-    plugins.implements(plugins.IRoutes, inherit=True)
     plugins.implements(plugins.IActions)
     plugins.implements(plugins.IBlueprint)
     plugins.implements(plugins.ITemplateHelpers)
