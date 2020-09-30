@@ -33,7 +33,6 @@ class MongoDataStoreBackend(DatastoreBackend):
         return cfg
 
     def create(self, context, data_dict):
-        logger.debug(f'datastore_create: {data_dict}')
         resource_id = data_dict.get('resource_id', None)
         records = data_dict.get('records', None)
         force = data_dict.get('force', False)
@@ -63,7 +62,6 @@ class MongoDataStoreBackend(DatastoreBackend):
         if records:
             self.mongo_cntr.upsert(resource_id, records)
 
-        logger.debug(f'datastore_create finsihed')
         return data_dict
 
     def upsert(self, context, data_dict):
