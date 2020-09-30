@@ -55,7 +55,9 @@ class MongoDataStoreBackend(DatastoreBackend):
             indexes = indexes.split(',')
 
         self.mongo_cntr.update_schema(resource_id, fields, indexes, primary_key)
-        self.mongo_cntr.create_resource(resource_id, primary_key)
+
+        if not self.resource_exists(resource_id):
+            self.mongo_cntr.create_resource(resource_id, primary_key)
 
         if records:
             self.mongo_cntr.upsert(resource_id, records)
