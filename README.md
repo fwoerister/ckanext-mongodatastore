@@ -35,7 +35,7 @@ sudo -u postgres createdb -O querystore querystore -E utf-8
 
 `. /usr/lib/ckan/default/bin/activate`
 
-4. Install the ckanext-mongodatastore Python package into your virtual environment::
+4. Install the ckanext-mongodatastore Python package into your virtual environment:
 
 `pip install ckanext-mongodatastore`
 
@@ -46,8 +46,11 @@ sudo -u postgres createdb -O querystore querystore -E utf-8
 5. Add ``mongodatastore`` to the ``ckan.plugins`` setting in your CKAN
    config file (by default the config file is located at
    ``/etc/ckan/default/production.ini``).
+   
+6. Initialize the query store with the custom _click_ command `create_schema`
+`ckan -c "/etc/ckan/default/production.ini" create_schema`
 
-6. Restart CKAN. For example if you've deployed CKAN with Apache on Ubuntu::
+7. Restart CKAN. For example if you've deployed CKAN with Apache on Ubuntu::
 
 `sudo service apache2 reload`
 
