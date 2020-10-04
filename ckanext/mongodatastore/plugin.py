@@ -2,7 +2,7 @@ import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 from ckanext.datastore.interfaces import IDatastoreBackend
 from ckanext.mongodatastore import blueprint
-from ckanext.mongodatastore.cli import init_querystore
+from ckanext.mongodatastore.cli import mongodatastore_init_querystore, mongodatastore_check_integrity
 from ckanext.mongodatastore.datastore_backend import MongoDataStoreBackend
 from ckanext.mongodatastore.logic.action import issue_query_pid, querystore_resolve, nonversioned_query
 from ckanext.mongodatastore.util import urlencode
@@ -48,4 +48,4 @@ class MongodatastorePlugin(plugins.SingletonPlugin):
 
     # IClick
     def get_commands(self):
-        return [init_querystore]
+        return [mongodatastore_init_querystore, mongodatastore_check_integrity]
