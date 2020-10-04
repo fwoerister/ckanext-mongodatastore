@@ -1,7 +1,7 @@
 import json
 import unittest
 
-from ckanext.mongodatastore.util import normalize_json, calculate_hash, urlencode
+from ckanext.mongodatastore.util import normalize_json, calculate_hash, encode_handle
 
 FLAT_DICT = {
     'firstname': 'Florian',
@@ -86,7 +86,7 @@ class TestUrlEncoding(unittest.TestCase):
     def test_url_encoding(self):
         handle_pid = "TEST/af7fb826-fcae-11ea-adc1-0242ac120002"
 
-        result = urlencode(handle_pid)
+        result = encode_handle(handle_pid)
         expected_result = "TEST%2Faf7fb826--fcae--11ea--adc1--0242ac120002"
 
         assert result == expected_result

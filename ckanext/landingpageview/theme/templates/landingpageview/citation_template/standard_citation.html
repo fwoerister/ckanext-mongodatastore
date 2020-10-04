@@ -7,6 +7,6 @@
     {{ m.citation_author }}<br/>
     Filename: {{ m.citation_filename }}; Maintained by: {{ m.citation_maintainer }}<br/>
     {% if q.handle_pid %}
-    Handle.Net PID: <a href=""><img src="https://img.shields.io/badge/handle.net-{{ h.urlencode(q.handle_pid) }}-red"/></a>
+    Handle.Net PID: <a href=""><img src="https://img.shields.io/badge/handle.net-{{ h.encode_handle(q.handle_pid) }}-red"/></a>
     {% endif %}
 </p>

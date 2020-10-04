@@ -5,7 +5,7 @@ from ckanext.mongodatastore import blueprint
 from ckanext.mongodatastore.cli import mongodatastore_init_querystore, mongodatastore_check_integrity
 from ckanext.mongodatastore.datastore_backend import MongoDataStoreBackend
 from ckanext.mongodatastore.logic.action import issue_query_pid, querystore_resolve, nonversioned_query
-from ckanext.mongodatastore.util import urlencode
+from ckanext.mongodatastore.util import encode_handle
 
 
 class MongodatastorePlugin(plugins.SingletonPlugin):
@@ -44,7 +44,7 @@ class MongodatastorePlugin(plugins.SingletonPlugin):
 
     # ITemplateHelpers
     def get_helpers(self):
-        return {'urlencode': urlencode}
+        return {'encode_handle': encode_handle}
 
     # IClick
     def get_commands(self):
