@@ -41,5 +41,5 @@ def calculate_hash(data):
     return algo.hexdigest()
 
 
-def urlencode(s):
+def encode_handle(s):
     return s.replace('/','%2F').replace('-', '--')
