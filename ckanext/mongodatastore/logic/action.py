@@ -42,7 +42,6 @@ def querystore_resolve(context, data_dict):
 
 
 @logic.side_effect_free
-@deprecated
 def nonversioned_query(context, data_dict):
     cntr = VersionedDataStoreController.get_instance()
 
