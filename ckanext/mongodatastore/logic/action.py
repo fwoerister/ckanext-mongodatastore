@@ -48,8 +48,8 @@ def nv_query(context, data_dict):
     q = data_dict.get('q', None)
     projection = data_dict.get('fields', [])
     sort = data_dict.get('sort', None)
-    skip = data_dict.get('offset', 0)
-    limit = data_dict.get('limit', 0)
+    skip = int(data_dict.get('offset', 0))
+    limit = int(data_dict.get('limit', 0))
     statement = json.loads(data_dict.get('filters', '{}'))
 
     if limit < MIN_LIMIT:
