@@ -4,7 +4,7 @@ from ckanext.datastore.interfaces import IDatastoreBackend
 from ckanext.mongodatastore import blueprint
 from ckanext.mongodatastore.cli import mongodatastore_init_querystore, mongodatastore_check_integrity
 from ckanext.mongodatastore.datastore_backend import MongoDataStoreBackend
-from ckanext.mongodatastore.logic.action import issue_query_pid, querystore_resolve, nonversioned_query
+from ckanext.mongodatastore.logic.action import issue_query_pid, querystore_resolve, nv_query
 from ckanext.mongodatastore.util import encode_handle
 
 
@@ -33,7 +33,7 @@ class MongodatastorePlugin(plugins.SingletonPlugin):
         actions = {
             'issue_pid': issue_query_pid,
             'querystore_resolve': querystore_resolve,
-            'nv_query': nonversioned_query
+            'nv_query': nv_query
         }
 
         return actions

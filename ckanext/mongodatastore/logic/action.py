@@ -41,15 +41,15 @@ def querystore_resolve(context, data_dict):
 
 
 @logic.side_effect_free
-def nonversioned_query(context, data_dict):
+def nv_query(context, data_dict):
     cntr = VersionedDataStoreController.get_instance()
 
     resource_id = data_dict.get('resource_id')
     q = data_dict.get('q', None)
     projection = data_dict.get('fields', [])
     sort = data_dict.get('sort', None)
-    skip = data_dict.get('offset', 0)
-    limit = data_dict.get('limit', 0)
+    skip = int(data_dict.get('offset', 0))
+    limit = int(data_dict.get('limit', 0))
     statement = json.loads(data_dict.get('filters', '{}'))
 
     if limit < MIN_LIMIT:
