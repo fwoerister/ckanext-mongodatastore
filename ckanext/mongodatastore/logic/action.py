@@ -1,6 +1,5 @@
 import json
 import logging
-from deprecation import deprecated
 
 from ckan import logic
 
