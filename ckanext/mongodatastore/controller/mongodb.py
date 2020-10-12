@@ -296,12 +296,19 @@ class VersionedDataStoreController:
 
                 if include_data:
                     stored_query.update(q.query['filter'])
-                    result['records'] = list(col.find(filter=stored_query,
-                                                      projection=q.query.get('projection'),
-                                                      sort=q.query.get('sort'),
-                                                      skip=offset,
-                                                      limit=limit,
-                                                      hint='_created_valid_to_index'))
+                    if '_created_valid_to_index' in col.index_information().keys():
+                        result['records'] = list(col.find(filter=stored_query,
+                                                          projection=q.query.get('projection'),
+                                                          sort=q.query.get('sort'),
+                                                          skip=offset,
+                                                          limit=limit,
+                                                          hint='_created_valid_to_index'))
+                    else:
+                        result['records'] = list(col.find(filter=stored_query,
+                                                          projection=q.query.get('projection'),
+                                                          sort=q.query.get('sort'),
+                                                          skip=offset,
+                                                          limit=limit))
 
                 result['query'] = q.as_dict()
 
